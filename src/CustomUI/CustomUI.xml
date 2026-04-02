@@ -167,6 +167,7 @@
                   </menu>
                </splitButton>
                <control idMso="FormatPainter" showLabel="false"/>
+               <button id="CornerRadiusButton" label="Eckenradius (px)" showLabel="false" imageMso="ShapeRoundedRectangle" onAction="SetCornerRadiusPx" getEnabled="EnableWhenShapesSelected" screentip="Eckenradius setzen" supertip="Setzt den Eckenradius der ausgewählten Shapes anhand eines Pixelwerts. Nicht unterstützte Shapes werden automatisch übersprungen."/>
                <button id="ObjectsCopyRoundedCorner" label="Copy rounded corner of first selected shape to selected shapes" showLabel="false" imageMso="ShapeRoundedRectangle" onAction="ObjectsCopyRoundedCorner" getEnabled="EnableWhenMultipleShapesSelected" supertip="Copies the rounded corner radius from the first selected shape to the other selected shapes" screentip="Copy Rounded Corner"/>
                <button id="ObjectsCopyShapeTypeAndAdjustments" label="Copy shape type and all adjustments of first selected shape to selected shapes" showLabel="false" imageMso="OutlineTasksShowAll" onAction="ObjectsCopyShapeTypeAndAdjustments" getEnabled="EnableWhenMultipleShapesSelected" supertip="Copies the shape type and all adjustment values from the first selected shape to the other selected shapes" screentip="Copy Shape Type and Adjustments"/>
                <toggleButton idMso="ObjectEditPoints" showLabel="false"/>
@@ -812,6 +813,7 @@
                   </menu>
                </splitButton>
                <control idMso="FormatPainter" showLabel="false"/>
+               <button id="TabViewCornerRadiusButton" label="Eckenradius (px)" showLabel="false" imageMso="ShapeRoundedRectangle" onAction="SetCornerRadiusPx" getEnabled="EnableWhenShapesSelected" screentip="Eckenradius setzen" supertip="Setzt den Eckenradius der ausgewählten Shapes anhand eines Pixelwerts. Nicht unterstützte Shapes werden automatisch übersprungen."/>
                <button id="TabViewObjectsCopyRoundedCorner" label="Copy rounded corner of first selected shape to selected shapes" showLabel="false" imageMso="ShapeRoundedRectangle" onAction="ObjectsCopyRoundedCorner" getEnabled="EnableWhenMultipleShapesSelected" supertip="Copies the rounded corner radius from the first selected shape to the other selected shapes" screentip="Copy Rounded Corner"/>
                <button id="TabViewObjectsCopyShapeTypeAndAdjustments" label="Copy shape type and all adjustments of first selected shape to selected shapes" showLabel="false" imageMso="OutlineTasksShowAll" onAction="ObjectsCopyShapeTypeAndAdjustments" getEnabled="EnableWhenMultipleShapesSelected" supertip="Copies the shape type and all adjustment values from the first selected shape to the other selected shapes" screentip="Copy Shape Type and Adjustments"/>
                <toggleButton idMso="ObjectEditPoints" showLabel="false"/>

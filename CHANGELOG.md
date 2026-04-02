@@ -4,6 +4,24 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 
 ---
 
+## [Schritt 2] – Corner Radius in Pixeln (2026-04-02)
+
+### Neu
+
+- **`src/Modules/modCornerRadius.bas`**: Neues Modul mit zwei Funktionen:
+  - `SetCornerRadiusPx` (Public, Ribbon-Callback): Fragt Eckenradius in Pixel ab, konvertiert nach Punkten (Faktor 0,75 bei 96 DPI), berechnet den normierten Adjustment-Wert (`radiusPt / (Min(Width, Height) / 2)`, gedeckelt auf 0,5) und setzt ihn auf alle ausgewählten Shapes. Shapes ohne Justierungs-Support werden übersprungen. Zeigt Ergebnismeldung mit Anzahl angepasster/übersprungener Shapes.
+  - `ApplyCornerRadius` (Private): Wendet den Radius auf ein einzelnes Shape an; gibt `False` zurück wenn das Shape keinen Eckenradius unterstützt (statt Fehler zu werfen).
+- **`src/CustomUI/CustomUI.xml`**: Neuer Button `CornerRadiusButton` / `TabViewCornerRadiusButton` in der Shapes-Gruppe (Single-Tab-View + Multi-Tab-View), direkt vor den bestehenden Rounded-Corner-Buttons. Deutscher `screentip`/`supertip`.
+
+### Technische Hinweise
+
+- Formel für Adjustment-Wert identisch zu `ModuleObjectsRoundedCorners.bas` (Konsistenz)
+- PowerPoint VBA kennt kein `UndoRecord` (nur Word/Excel) – Undo funktioniert automatisch pro Shape-Änderung (ggf. mehrere Ctrl+Z nötig)
+- Kein Windows-API-Aufruf, kein FSO, keine plattformspezifischen Konstrukte
+- Child-ShapeRange (Shapes innerhalb Gruppe selektiert) wird korrekt behandelt
+
+---
+
 ## [Schritt 1] – Rebranding zu "Infront Toolkit" (2026-04-02)
 
 ### Geändert
