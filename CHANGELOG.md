@@ -4,6 +4,35 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 
 ---
 
+## [Schritt 3] – Screen Color Picker (Windows + Mac) (2026-04-02)
+
+### Neu
+
+- **`src/Modules/modColorPicker.bas`**: Color Picker mit plattformspezifischer Implementierung:
+  - `ShowColorPicker` (Public, Ribbon-Callback): Haupt-Entry-Point, ruft Plattform-Picker, öffnet Ergebnisform.
+  - `PickScreenColorWindows` (Private, `#If Not Mac`): Zeigt Anweisungs-Dialog, liest nach OK Pixel-Farbe an Mausposition via Windows API. `ReleaseDC` in allen Code-Pfaden sichergestellt. COLORREF-Rückgabe wird direkt als VBA-RGB genutzt (identisches Byte-Layout, keine Konvertierung nötig).
+  - `PickScreenColorMac` (Private, `#If Mac`): Nutzt `MacScript("choose color")` für macOS NSColorPanel, skaliert 0–65535 → 0–255, defensives Parsing. Fallback: manuelle Hex-Eingabe.
+  - `ApplyColorToSelection` (Public): Wendet Farbe auf Fill / Line / Font aller selektierten Shapes an. Child-ShapeRange-Support.
+  - `ApplyColorToShape` (Private): Fehlergesichertes Anwenden auf einzelne Shape.
+  - `ColorToHex` / `ColorToRGBString` (Public): Hilfsfunktionen für die Ergebnisform.
+  - API-Deklarationen: Identisches Muster zu `ModuleEyedropper.bas` (`Private`, `#If VBA7 And Win64`), kein Namenskonflikt.
+- **`src/Forms/frmColorPicker.frm`**: Ergebnisform mit Farbvorschau (`lblPreview`), Hex/RGB-Anzeige (`lblInfo`), OptionButtons (Fill/Line/Font), Apply- und Close-Button. Controls müssen in VBA-IDE angelegt werden (kein .frx vorhanden – entspricht Projektkonvention).
+- **`src/CustomUI/CustomUI.xml`**: Neue Gruppe `InfrontFormatGroup` / `TabViewInfrontFormatGroup` ("Format") in beiden Tab-Views nach der Shapes-Gruppe. Erster Button: `ColorPickerButton` → `ShowColorPicker`. Weitere Buttons folgen in Schritt 5 (Format Painter+).
+
+### Technische Entscheidungen und Einschränkungen
+
+| Plattform | Implementierung | Einschränkung |
+|---|---|---|
+| Windows | `GetCursorPos` + `GetDC(0)` + `GetPixel` nach OK-Klick | Kein Real-Time-Eyedropper; Maus muss vor OK positioniert sein |
+| Mac | `MacScript("choose color")` → NSColorPanel | Kein Screen-Eyedropper; zeigt System-Farbauswahl-Dialog |
+| Mac Fallback | Manuelle Hex-Eingabe | Wenn MacScript nicht verfügbar |
+
+- `AppleScriptTask()` **bewusst nicht verwendet** (erfordert Deployment von .applescript-Datei nach `~/Library/Application Scripts/com.microsoft.Powerpoint/`)
+- COLORREF ↔ VBA-RGB: identisches Byte-Layout, keine Konvertierung nötig
+- Undo: automatisch durch PowerPoint, kein UndoRecord verfügbar
+
+---
+
 ## [Schritt 2] – Corner Radius in Pixeln (2026-04-02)
 
 ### Neu

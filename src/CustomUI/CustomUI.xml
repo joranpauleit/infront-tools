@@ -224,6 +224,9 @@
                <button id="IncreaseMargins" label="Increase margins" showLabel="false" imageMso="UpArrow2" onAction="ObjectsMarginsIncrease" getEnabled="EnableWhenShapeOrText" supertip="Increases the margins of the selected shapes" screentip="Increase Margins"/>
                <button id="DecreaseMargins" label="Decrease margins" showLabel="false" imageMso="DownArrow2" onAction="ObjectsMarginsDecrease" getEnabled="EnableWhenShapeOrText" supertip="Decreases the margins of the selected shapes" screentip="Decrease Margins"/>
             </group>
+            <group id="InfrontFormatGroup" label="Format" imageMso="FormatPainter" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="ColorPickerButton" label="Color Picker" imageMso="ShapeFillColorPicker" onAction="ShowColorPicker" getEnabled="EnableWhenShapesSelected" screentip="Color Picker" supertip="Nimmt eine Farbe vom Bildschirm auf (Windows) oder öffnet den macOS Farbauswahl-Dialog (Mac) und ermöglicht das Anwenden auf Füll-, Linien- oder Schriftfarbe der selektierten Shapes."/>
+            </group>
             <group id="PictureGroup" label="Pictures" imageMso="PictureRecolorAutomatic" tag="P" getVisible="InstrumentaGetVisible">
                <splitButton id="PictureCropSplitButton" size="normal" showLabel="false">
                   <toggleButton idMso="PictureCrop" showLabel="false"/>
@@ -869,6 +872,9 @@
                <button id="TabViewRemoveMargins" label="Remove margins" showLabel="false" imageMso="PageMarginsGallery" onAction="ObjectsMarginsToZero" getEnabled="EnableWhenShapeOrText" supertip="Removes the margins of the selected shapes" screentip="Remove Margins"/>
                <button id="TabViewIncreaseMargins" label="Increase margins" showLabel="false" imageMso="UpArrow2" onAction="ObjectsMarginsIncrease" getEnabled="EnableWhenShapeOrText" supertip="Increases the margins of the selected shapes" screentip="Increase Margins"/>
                <button id="TabViewDecreaseMargins" label="Decrease margins" showLabel="false" imageMso="DownArrow2" onAction="ObjectsMarginsDecrease" getEnabled="EnableWhenShapeOrText" supertip="Decreases the margins of the selected shapes" screentip="Decrease Margins"/>
+            </group>
+            <group id="TabViewInfrontFormatGroup" label="Format" imageMso="FormatPainter" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="TabViewColorPickerButton" label="Color Picker" imageMso="ShapeFillColorPicker" onAction="ShowColorPicker" getEnabled="EnableWhenShapesSelected" screentip="Color Picker" supertip="Nimmt eine Farbe vom Bildschirm auf (Windows) oder öffnet den macOS Farbauswahl-Dialog (Mac) und ermöglicht das Anwenden auf Füll-, Linien- oder Schriftfarbe der selektierten Shapes."/>
             </group>
             <group id="TabViewPictureGroup" label="Pictures" imageMso="PictureRecolorAutomatic" tag="P" getVisible="InstrumentaGetVisible">
                <splitButton id="TabViewPictureCropSplitButton" size="normal" showLabel="false">
