@@ -4,6 +4,43 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 
 ---
 
+## [Schritt 4] – Brand Compliance Checker (2026-04-02)
+
+### Neu
+
+- **`Infront_BrandConfig.ini`** (Repo-Wurzel): Kommentierte Beispiel-Konfigurationsdatei mit zwei Profilen (`Default`, `Strict`). Felder: `ActiveProfile`, `Name`, `AllowedFonts`, `AllowedColors`, `ColorTolerance`, `MinFontSizePt`.
+- **`src/Modules/modBrandCompliance.bas`**: Vollständiges Modul für den Brand Compliance Check:
+  - `ShowBrandCheck` (Public, Ribbon-Callback): Lädt Profil aus INI, iteriert alle Slides/Shapes, öffnet `frmBrandCompliance` im modeless-Modus.
+  - `GetConfigPath` (Public): Ermittelt INI-Pfad über `ThisPresentation.Path`, Fallback: AddIns-Kollektion nach "infront" durchsuchen.
+  - `LoadProfile` / `CreateDefaultConfig` (Private): INI-Profil laden bzw. Vorlage erstellen wenn keine INI vorhanden.
+  - `ReadIniValue` / `WriteIniValue` (Public): Vollständiger INI-Parser/Writer mit `Open/Line Input/Print#/Close` – kein FSO.
+  - `ParseColorList` / `ParseFontList` (Private): Kommagetrennte Listen aus INI in Array parsen.
+  - `CheckShape` (Private, rekursiv): Traversiert Gruppen (`shp.GroupItems`), leitet Tabellen an `CheckTable` weiter, prüft FillColor/LineColor/TextFrame.
+  - `CheckTable` (Private): Prüft alle Zellen einer Tabelle (Fill + Text).
+  - `CheckTextFrame` (Private): Iteriert Paragraphen und Runs; prüft `Font.Name` und `Font.Size`.
+  - `IsColorAllowed` / `ColorMaxChannelDiff` / `NearestAllowedColor` (Private/Public): Farb-Toleranzprüfung per maximaler Kanal-Differenz (0–30 Range).
+  - `IsFontAllowed` (Private): Groß-/Kleinschreibungstoleranter Schriftart-Vergleich.
+  - `AddViolation` (Private): Dynamisches Array `g_Violations` mit automatischem `ReDim Preserve`.
+  - `ExportViolationsToCSV` (Public): CSV-Export mit Windows-FileDialog / Mac-InputBox-Fallback, Semikolon-Trenner, `CsvEscape`-Maskierung.
+  - `FixViolation` (Public): Behebt einzelnen Verstoß automatisch (nächste erlaubte Farbe / ersten erlaubten Font / MinFontSizePt).
+  - `ColorToHexStr` / `AllowedColorsAsString` / `AllowedFontsAsString` / `CsvEscape` (Public/Private): Hilfs- und Formatierungsfunktionen.
+- **`src/Forms/frmBrandCompliance.frm`**: Ergebnisform mit 6-spaltiger ListBox (`lstViolations`), Zusammenfassungs-Label (`lblSummary`), Buttons: `btnGoToSlide`, `btnFixSelected`, `btnExportCSV`, `btnClose`. Controls müssen in VBA-IDE angelegt werden (kein .frx – Projektkonvention).
+- **`src/CustomUI/CustomUI.xml`**: Neue Gruppe `InfrontQualityGroup` (label="Quality") vor der Advanced-Gruppe im Single-Tab-View; `TabViewInfrontQualityGroup` entsprechend im Multi-Tab-View. Erster Button: `BrandCheckButton` → `ShowBrandCheck`.
+
+### Technische Entscheidungen
+
+| Thema | Entscheidung |
+|---|---|
+| Farb-Toleranz | Maximale Kanal-Differenz (nicht Euklidisch), Bereich 0–30 |
+| INI-Parser | Open/Line Input/Close – kein FSO (Plattform-Anforderung) |
+| Mac CSV-Export | InputBox mit Desktop-Vorschlag (kein SaveAs-Dialog ohne AppleScriptTask) |
+| Gruppen-Traversierung | Rekursiv über `GroupItems` |
+| Tabellen | `shp.HasTable` → `shp.Table.Cell(r,c)` |
+| UndoRecord | Nicht verfügbar in PowerPoint VBA; `FixViolation` erstellt automatisch Undo-Einträge per Shape-Änderung |
+| Konfigurationspfad | `ThisPresentation.Path` + `Application.PathSeparator` (kein hardcodierter Separator) |
+
+---
+
 ## [Schritt 3] – Screen Color Picker (Windows + Mac) (2026-04-02)
 
 ### Neu
