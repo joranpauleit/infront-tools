@@ -21,7 +21,7 @@ Attribute VB_Name = "ModuleSettings"
 'OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 'SOFTWARE.
 
-Sub DeleteAllInstrumentaSettings()
+Sub DeleteAllInfrontSettings()
     SaveSetting "Instrumenta", "temp", "temp", "temp"
     DeleteSetting ("Instrumenta")
     SettingsForm.Hide

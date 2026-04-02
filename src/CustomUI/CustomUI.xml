@@ -2,7 +2,7 @@
 <customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui" onLoad="InstrumentaInitialize">
    <ribbon>
       <tabs>
-         <tab id="InstrumentaPowerpointToolbar" label="Instrumenta" getVisible="InstrumentaGetVisibleOneTabView">
+         <tab id="InstrumentaPowerpointToolbar" label="Infront" getVisible="InstrumentaGetVisibleOneTabView">
             <group id="FormattingFont" label="Font" tag="PR" getVisible="InstrumentaGetVisible">
                <box id="FontBox1" boxStyle="horizontal">
                   <control idMso="Font"/>

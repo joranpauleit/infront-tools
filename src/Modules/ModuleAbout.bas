@@ -25,6 +25,6 @@ Public InstrumentaVersion As String
 
 Sub ShowAboutDialog()
     InstrumentaVersion = "1.71"
-    AboutDialog.Label1.caption = "Instrumenta Powerpoint Toolbar v" & InstrumentaVersion
+    AboutDialog.Label1.caption = "Infront Toolkit v" & InstrumentaVersion
     AboutDialog.Show
 End Sub

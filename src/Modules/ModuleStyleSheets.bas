@@ -108,7 +108,7 @@ Sub CreateStyleSheetLayout()
     For Each layout In sm.CustomLayouts
         If layout.name = "InstrumentaStylesheet" Then
             
-            answer = MsgBox("Instrumenta stylesheet already exists on this master." & vbCrLf & _
+            answer = MsgBox("Infront stylesheet already exists on this master." & vbCrLf & _
                             "Do you want to delete it and recreate it?", _
                             vbYesNo + vbQuestion, "Recreate Stylesheet?")
             
@@ -121,7 +121,7 @@ Sub CreateStyleSheetLayout()
 
     Call CreateStyleSheetOnMaster(sm)
 
-    MsgBox "Instrumenta stylesheet layout created on the current slide master."
+    MsgBox "Infront stylesheet layout created on the current slide master."
 
 End Sub
 
@@ -187,7 +187,7 @@ Sub ApplyTextStyle(styleName As String)
     If stylesheet Is Nothing Then
         Dim answer As VbMsgBoxResult
         answer = MsgBox( _
-            "No Instrumenta stylesheet found on this slide master." & vbCrLf & vbCrLf & _
+            "No Infront stylesheet found on this slide master." & vbCrLf & vbCrLf & _
             "Do you want to create one now?", _
             vbYesNo + vbQuestion, _
             "Create Stylesheet?")
@@ -301,7 +301,7 @@ Sub OpenStyleSheet()
     If stylesheet Is Nothing Then
         Dim answer As VbMsgBoxResult
         answer = MsgBox( _
-            "No Instrumenta stylesheet found on this slide master." & vbCrLf & vbCrLf & _
+            "No Infront stylesheet found on this slide master." & vbCrLf & vbCrLf & _
             "Do you want to create one now?", _
             vbYesNo + vbQuestion, _
             "Create Stylesheet?")
@@ -376,7 +376,7 @@ Sub UpdateFullShapeStyles()
         
     Next sld
 
-    MsgBox updatedCount & " shape(s) updated with their Instrumenta styles.", vbInformation, "Update Complete"
+    MsgBox updatedCount & " shape(s) updated with their Infront styles.", vbInformation, "Update Complete"
 
 End Sub
 
@@ -400,7 +400,7 @@ Sub RemoveAllInstrumentaStyleTags()
         Next shp
     Next sld
 
-    MsgBox countRemoved & " Instrumenta style tag(s) removed.", vbInformation, "Cleanup Complete"
+    MsgBox countRemoved & " Infront style tag(s) removed.", vbInformation, "Cleanup Complete"
 
 End Sub
 
@@ -420,13 +420,13 @@ Sub RemoveInstrumentaStylesheet()
     Set stylesheet = FindStylesheet(sm)
     
     If stylesheet Is Nothing Then
-        MsgBox "No Instrumenta stylesheet layout found on this slide master.", vbInformation, "Nothing to Remove"
+        MsgBox "No Infront stylesheet layout found on this slide master.", vbInformation, "Nothing to Remove"
         Exit Sub
     End If
 
     stylesheet.Delete
 
-    MsgBox "Instrumenta stylesheet layout has been removed from this slide master.", _
+    MsgBox "Infront stylesheet layout has been removed from this slide master.", _
            vbInformation, "Stylesheet Removed"
 
 End Sub
@@ -515,7 +515,7 @@ Sub CreateStyleSheetOnMaster(sm As Object)
         .name = "InstrumentaWarning"
         .TextFrame2.textRange.text = _
             "DO NOT USE THIS LAYOUT" & vbCrLf & _
-            "This layout is for Instrumenta stylesheet definitions only."
+            "This layout is for Infront stylesheet definitions only."
 
         With .TextFrame2.textRange.Font
             .name = "Segoe UI"
@@ -583,7 +583,7 @@ Sub ExportStylesToPPTX()
 
     Set stylesheet = FindStylesheet(sm)
     If stylesheet Is Nothing Then
-        MsgBox "InstrumentaStylesheet not found on this master. Nothing to export.", vbExclamation
+        MsgBox "Infront Stylesheet not found on this master. Nothing to export.", vbExclamation
         Exit Sub
     End If
 
@@ -642,7 +642,7 @@ Sub ImportStylesFromPPTX()
 If stylesheet Is Nothing Then
     Dim answer As VbMsgBoxResult
     answer = MsgBox( _
-        "No Instrumenta stylesheet found on this slide master." & vbCrLf & vbCrLf & _
+        "No Infront stylesheet found on this slide master." & vbCrLf & vbCrLf & _
         "You need to create one first before you can import. " & vbCrLf & vbCrLf & _
         "Do you want to create one now?", _
         vbYesNo + vbQuestion, _
@@ -677,7 +677,7 @@ End If
     #Else
         Dim importFileDialog As FileDialog
         Set importFileDialog = Application.FileDialog(msoFileDialogFilePicker)
-        importFileDialog.title = "Import Instrumenta Stylesheet"
+        importFileDialog.title = "Import Infront Stylesheet"
         importFileDialog.Filters.Clear
         importFileDialog.Filters.Add "PowerPoint Files", "*.pptx"
         

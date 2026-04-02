@@ -104,7 +104,7 @@ End Sub
 
 Private Sub ClearSettingsButton_Click()
     SettingsForm.Hide
-    DeleteAllInstrumentaSettings
+    DeleteAllInfrontSettings
     SettingsForm.Show
 End Sub
 
