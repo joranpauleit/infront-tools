@@ -1,28 +1,45 @@
 /**
  * ColorPickerPanel.tsx
- * Feature-Panel: Farbwähler.
- * Vollständige Implementierung: Schritt 5.
+ * Feature-Panel: Farbwähler (vollständige Implementierung).
  *
- * HINWEIS: Ein systemweiter Screen-Pixel-Picker ist im Office Add-in
- * auf Mac nicht möglich (WebKit/Safari unterstützt EyeDropper API nicht).
- * Fallback: Hex/RGB-Eingabe, Farbübernahme aus Shape, Recent-Colors-Palette.
+ * WICHTIG – Mac/Office.js-Einschränkung (Kategorie C):
+ * Ein systemweiter Screen-Pixel-Picker ist im Office Add-in auf Mac NICHT möglich.
+ * WKWebView (PowerPoint für Mac) unterstützt die EyeDropper API nicht.
+ * Diese Einschränkung ist in TESTING.md dokumentiert.
+ *
+ * Verfügbare Funktionen:
+ * - Hex-Eingabe mit RGB-Anzeige und Live-Vorschau
+ * - Farbe aus selektiertem Shape auslesen (Fill / Linie / Schrift)
+ * - Markenfarben-Palette (aus BrandConfig)
+ * - Zuletzt-verwendet-Palette (Session)
+ * - Anwenden auf: Füllung, Linie oder Schriftfarbe aller selektierten Shapes
  */
 
 import * as React from "react";
 import { Stack } from "@fluentui/react/lib/Stack";
 import { Text } from "@fluentui/react/lib/Text";
-import { PrimaryButton, DefaultButton } from "@fluentui/react/lib/Button";
+import { PrimaryButton, DefaultButton, ActionButton } from "@fluentui/react/lib/Button";
 import { TextField } from "@fluentui/react/lib/TextField";
 import { ChoiceGroup, IChoiceGroupOption } from "@fluentui/react/lib/ChoiceGroup";
+import { Separator } from "@fluentui/react/lib/Separator";
+import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import { MessageBar, MessageBarType } from "@fluentui/react/lib/MessageBar";
+import { TooltipHost } from "@fluentui/react/lib/Tooltip";
+
 import ColorSwatch from "../shared/ColorSwatch";
 import NotificationBar, { NotificationType } from "../shared/NotificationBar";
-
-type ApplyTarget = "fill" | "line" | "font";
+import {
+  applyColorToShapes,
+  pickColorFromShape,
+  getRecentColors,
+  ColorTarget,
+} from "../../../features/colorPicker/ColorPickerService";
+import { normalizeHex, hexToRgb } from "../../../utils/colorUtils";
+import { DEFAULT_BRAND_CONFIG } from "../../../services/config/BrandConfig";
 
 interface Notification {
   message: string;
-  type: NotificationType;
+  type:    NotificationType;
 }
 
 const TARGET_OPTIONS: IChoiceGroupOption[] = [
@@ -31,141 +48,118 @@ const TARGET_OPTIONS: IChoiceGroupOption[] = [
   { key: "font", text: "Schriftfarbe" },
 ];
 
+// Markenfarben aus der Default-Konfiguration
+const BRAND_COLORS = DEFAULT_BRAND_CONFIG.profiles[0].brandColors;
+
 const ColorPickerPanel: React.FC = () => {
-  const [hexInput, setHexInput]           = React.useState<string>("#003366");
-  const [applyTarget, setApplyTarget]     = React.useState<ApplyTarget>("fill");
-  const [recentColors, setRecentColors]   = React.useState<string[]>([]);
-  const [notification, setNotification]   = React.useState<Notification | null>(null);
-  const [isRunning, setIsRunning]         = React.useState(false);
+  const [hexInput, setHexInput]         = React.useState<string>("#003366");
+  const [target, setTarget]             = React.useState<ColorTarget>("fill");
+  const [notification, setNotification] = React.useState<Notification | null>(null);
+  const [isApplying, setIsApplying]     = React.useState(false);
+  const [isPicking, setIsPicking]       = React.useState(false);
+  const [recentColors, setRecentColors] = React.useState<string[]>([]);
 
-  /** Normalisiert und validiert einen Hex-Farbwert. */
-  const normalizeHex = (raw: string): string | null => {
-    const cleaned = raw.trim().replace(/^#/, "");
-    if (/^[0-9A-Fa-f]{6}$/.test(cleaned)) return `#${cleaned.toUpperCase()}`;
-    if (/^[0-9A-Fa-f]{3}$/.test(cleaned)) {
-      const [r, g, b] = cleaned.split("");
-      return `#${r}${r}${g}${g}${b}${b}`.toUpperCase();
-    }
-    return null;
+  // Zuletzt-verwendet-Farben bei Panel-Mount laden
+  React.useEffect(() => {
+    setRecentColors(getRecentColors());
+  }, []);
+
+  // ─── Abgeleitete Werte ────────────────────────────────────────────────────
+
+  const normHex = normalizeHex(hexInput);
+  const rgb     = normHex ? hexToRgb(normHex) : null;
+  const isValid = normHex !== null;
+
+  // ─── Handler ──────────────────────────────────────────────────────────────
+
+  /** Hex-Eingabe normalisieren und setzen. */
+  const handleHexChange = (_e: React.FormEvent, val?: string) => {
+    setHexInput(val ?? "");
   };
 
-  /** Liest die Farbe des ersten selektierten Shapes und übernimmt sie ins Eingabefeld. */
+  /** Farbe aus Shape auslesen. */
   const handlePickFromShape = async () => {
-    setIsRunning(true);
-    try {
-      await PowerPoint.run(async (context) => {
-        const selection = context.presentation.getSelectedShapes();
-        selection.load("items");
-        await context.sync();
+    setIsPicking(true);
+    setNotification(null);
 
-        if (selection.items.length === 0) {
-          setNotification({ message: "Kein Shape selektiert.", type: "warning" });
-          return;
-        }
+    const picked = await pickColorFromShape(target);
 
-        const shape = selection.items[0];
-        shape.fill.load("foregroundColor");
-        await context.sync();
+    setIsPicking(false);
 
-        const color = shape.fill.foregroundColor;
-        if (color) {
-          setHexInput(color.startsWith("#") ? color : `#${color}`);
-          setNotification({ message: `Farbe übernommen: ${color}`, type: "success" });
-        }
+    if (picked) {
+      setHexInput(picked.hex);
+      setNotification({
+        message: `Farbe übernommen: ${picked.hex} (${
+          target === "fill" ? "Füllung" : target === "line" ? "Linie" : "Schrift"
+        })`,
+        type: "success",
       });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setNotification({ message: `Fehler: ${message}`, type: "error" });
-    } finally {
-      setIsRunning(false);
+    } else {
+      const targetLabel = target === "fill" ? "Füllfarbe" : target === "line" ? "Linienfarbe" : "Schriftfarbe";
+      setNotification({
+        message: `${targetLabel} konnte nicht gelesen werden. Shape selektiert? Gradient/kein TextFrame?`,
+        type: "warning",
+      });
     }
   };
 
-  /** Wendet die eingegebene Farbe auf alle selektierten Shapes an. */
+  /** Farbe auf selektierte Shapes anwenden. */
   const handleApply = async () => {
-    const hex = normalizeHex(hexInput);
-    if (!hex) {
+    if (!isValid) {
       setNotification({ message: "Ungültiger Hex-Wert. Format: #RRGGBB", type: "error" });
       return;
     }
 
-    setIsRunning(true);
+    setIsApplying(true);
     setNotification(null);
 
     try {
-      await PowerPoint.run(async (context) => {
-        const selection = context.presentation.getSelectedShapes();
-        selection.load("items");
-        await context.sync();
+      const result = await applyColorToShapes(normHex!, target);
 
-        if (selection.items.length === 0) {
-          setNotification({ message: "Keine Shapes selektiert.", type: "warning" });
-          return;
-        }
+      // Recent Colors aktualisieren
+      setRecentColors(getRecentColors());
 
-        let applied = 0;
-        let skipped = 0;
-
-        for (const shape of selection.items) {
-          try {
-            if (applyTarget === "fill") {
-              shape.fill.setSolidColor(hex);
-              applied++;
-            } else if (applyTarget === "line") {
-              shape.lineFormat.color = hex;
-              applied++;
-            } else if (applyTarget === "font") {
-              shape.load("textFrame");
-              await context.sync();
-              if (shape.textFrame) {
-                shape.textFrame.textRange.font.color = hex;
-                applied++;
-              } else {
-                skipped++;
-              }
-            }
-          } catch {
-            skipped++;
-          }
-        }
-
-        await context.sync();
-
-        // Recent Colors aktualisieren
-        setRecentColors((prev) => {
-          const updated = [hex, ...prev.filter((c) => c !== hex)].slice(0, 8);
-          return updated;
-        });
-
+      if (result.applied === 0 && result.skipped === 0 && result.errors.length === 0) {
+        setNotification({ message: "Keine Shapes selektiert.", type: "warning" });
+      } else if (result.applied === 0) {
         setNotification({
-          message: `${applied} Shape(s) eingefärbt, ${skipped} übersprungen.`,
-          type: applied > 0 ? "success" : "warning",
+          message: `Keine Shapes eingefärbt. ${result.skipped} übersprungen (kein TextFrame?).`,
+          type: "warning",
         });
-      });
+      } else {
+        const skipNote = result.skipped > 0 ? `, ${result.skipped} übersprungen` : "";
+        const errNote  = result.errors.length > 0 ? ` Fehler: ${result.errors.join(", ")}` : "";
+        setNotification({
+          message: `${result.applied} Shape(s) eingefärbt${skipNote}.${errNote}`,
+          type: result.errors.length > 0 ? "warning" : "success",
+        });
+      }
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setNotification({ message: `Fehler: ${message}`, type: "error" });
+      setNotification({
+        message: `Fehler: ${err instanceof Error ? err.message : String(err)}`,
+        type: "error",
+      });
     } finally {
-      setIsRunning(false);
+      setIsApplying(false);
     }
   };
 
-  const currentHex = normalizeHex(hexInput);
-  const rgbParts = currentHex
-    ? [
-        parseInt(currentHex.slice(1, 3), 16),
-        parseInt(currentHex.slice(3, 5), 16),
-        parseInt(currentHex.slice(5, 7), 16),
-      ]
-    : null;
+  /** Farbe aus Palette übernehmen. */
+  const selectColor = (hex: string) => {
+    setHexInput(hex);
+    setNotification(null);
+  };
+
+  // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
     <Stack className="panel-container" tokens={{ childrenGap: 12 }}>
       <Text className="panel-title">Farbwähler</Text>
 
-      <MessageBar messageBarType={MessageBarType.info} isMultiline styles={{ root: { marginBottom: 4 } }}>
-        Systemweiter Pixel-Picker nicht verfügbar (Mac/WebKit-Einschränkung).
-        Bitte Hex-Wert eingeben oder Farbe aus Shape übernehmen.
+      {/* Hinweis auf fehlenden Screen-Picker */}
+      <MessageBar messageBarType={MessageBarType.info} isMultiline>
+        Screen-Pixel-Picker nicht verfügbar (Mac/WebKit-Einschränkung).
+        Verwende Hex-Eingabe, Markenfarben oder &bdquo;Aus Shape&ldquo;.
       </MessageBar>
 
       <NotificationBar
@@ -174,68 +168,118 @@ const ColorPickerPanel: React.FC = () => {
         onDismiss={() => setNotification(null)}
       />
 
-      {/* Farb-Eingabe */}
+      {/* ── Farbeingabe + Vorschau ── */}
       <Stack horizontal verticalAlign="end" tokens={{ childrenGap: 8 }}>
         <TextField
           label="Hex-Farbwert:"
           value={hexInput}
-          onChange={(_e, val) => setHexInput(val ?? "")}
+          onChange={handleHexChange}
           placeholder="#003366"
+          errorMessage={hexInput && !isValid ? "Format: #RRGGBB oder #RGB" : undefined}
           styles={{ root: { flex: 1 } }}
         />
-        {currentHex && (
-          <ColorSwatch color={currentHex} size={32} showLabel={false} />
-        )}
+        {/* Farbvorschau-Quadrat */}
+        <div style={{ marginBottom: 4 }}>
+          <ColorSwatch
+            color={normHex ?? "transparent"}
+            size={36}
+            showLabel={false}
+            title={normHex ?? "ungültig"}
+          />
+        </div>
       </Stack>
 
       {/* RGB-Anzeige */}
-      {rgbParts && (
-        <Text variant="small" style={{ color: "#555", fontFamily: "monospace" }}>
-          RGB({rgbParts[0]}, {rgbParts[1]}, {rgbParts[2]})
+      {rgb ? (
+        <Text variant="small" style={{ fontFamily: "monospace", color: "#555" }}>
+          RGB({rgb.r}, {rgb.g}, {rgb.b})
         </Text>
+      ) : (
+        <Text variant="small" style={{ color: "#999" }}>RGB — —</Text>
       )}
 
-      {/* Ziel-Auswahl */}
+      {/* ── Ziel-Auswahl ── */}
       <ChoiceGroup
         label="Anwenden auf:"
         options={TARGET_OPTIONS}
-        selectedKey={applyTarget}
-        onChange={(_e, option) => option && setApplyTarget(option.key as ApplyTarget)}
+        selectedKey={target}
+        onChange={(_e, opt) => opt && setTarget(opt.key as ColorTarget)}
+        styles={{ flexContainer: { display: "flex", gap: 12 } }}
       />
 
-      {/* Aktionen */}
+      {/* ── Aktions-Buttons ── */}
       <Stack horizontal tokens={{ childrenGap: 8 }}>
-        <PrimaryButton
-          text={isRunning ? "Wird angewendet…" : "Anwenden"}
-          onClick={handleApply}
-          disabled={isRunning || !currentHex}
-          styles={{ root: { flex: 1 } }}
-        />
-        <DefaultButton
-          text="Aus Shape"
-          onClick={handlePickFromShape}
-          disabled={isRunning}
-          title="Farbe des ersten selektierten Shapes übernehmen"
-        />
+        {isApplying ? (
+          <Spinner size={SpinnerSize.small} label="Wird angewendet…" styles={{ root: { flex: 1 } }} />
+        ) : (
+          <PrimaryButton
+            text="Auf selektierte Shapes anwenden"
+            onClick={handleApply}
+            disabled={!isValid || isPicking}
+            styles={{ root: { flex: 1 } }}
+          />
+        )}
+        <TooltipHost
+          content={`${
+            target === "fill" ? "Füllfarbe" : target === "line" ? "Linienfarbe" : "Schriftfarbe"
+          } des ersten selektierten Shapes übernehmen`}
+        >
+          <DefaultButton
+            text={isPicking ? "…" : "Aus Shape"}
+            onClick={handlePickFromShape}
+            disabled={isPicking || isApplying}
+            styles={{ root: { minWidth: 90 } }}
+          />
+        </TooltipHost>
       </Stack>
 
-      {/* Zuletzt verwendete Farben */}
+      {/* ── Markenfarben ── */}
+      <Separator>Markenfarben</Separator>
+      <Stack horizontal wrap tokens={{ childrenGap: 6 }}>
+        {BRAND_COLORS.map((bc) => (
+          <TooltipHost key={bc.value} content={bc.name}>
+            <ColorSwatch
+              color={bc.value}
+              size={26}
+              onClick={selectColor}
+              title={bc.name}
+            />
+          </TooltipHost>
+        ))}
+      </Stack>
+      <ActionButton
+        text="Aus Konfiguration laden…"
+        iconProps={{ iconName: "Settings" }}
+        styles={{ root: { fontSize: 12, height: 24, padding: 0 } }}
+        disabled
+        title="Konfigurierbare Markenfarben – vollständig in Schritt 6 (Brand Check)"
+      />
+
+      {/* ── Zuletzt verwendet ── */}
       {recentColors.length > 0 && (
-        <Stack tokens={{ childrenGap: 6 }}>
-          <Text variant="small" style={{ color: "#666" }}>Zuletzt verwendet:</Text>
-          <Stack horizontal wrap tokens={{ childrenGap: 4 }}>
+        <>
+          <Separator>Zuletzt verwendet</Separator>
+          <Stack horizontal wrap tokens={{ childrenGap: 6 }}>
             {recentColors.map((c) => (
               <ColorSwatch
                 key={c}
                 color={c}
-                size={24}
-                onClick={(color) => setHexInput(color)}
+                size={26}
+                onClick={selectColor}
                 title={c}
+                showLabel={false}
               />
             ))}
           </Stack>
-        </Stack>
+        </>
       )}
+
+      {/* ── Hinweis ── */}
+      <Separator />
+      <Text variant="small" style={{ color: "#666" }}>
+        <strong>Undo-Hinweis:</strong> Snapshot vor Farbänderung wird im Session-State gespeichert.
+        Natives Undo (⌘+Z) funktioniert nach Add-in-Operationen möglicherweise nicht.
+      </Text>
     </Stack>
   );
 };
