@@ -226,6 +226,11 @@ Sub EmailSelectedSlides()
         Dim OutlookMessageMac As String
 
         ParamString = BuildAppleScriptParam(EmailSubject, tempDir & PresentationFilename & ".pptx")
+        If ParamString = "" Then
+            Kill (tempDir & PresentationFilename & ".pptx")
+            MsgBox "Temporary file path contains unsupported characters."
+            Exit Sub
+        End If
         OutlookMessageMac = AppleScriptTask("InstrumentaAppleScriptPlugin.applescript", "SendFileWithOutlook", CStr(ParamString))
 
         Kill (tempDir & PresentationFilename & ".pptx")
@@ -353,6 +358,11 @@ Sub EmailSelectedSlidesAsPDF()
         Dim OutlookMessageMac As String
 
         ParamString = BuildAppleScriptParam(EmailSubject, tempDir & PresentationFilename & ".pdf")
+        If ParamString = "" Then
+            Kill (tempDir & PresentationFilename & ".pdf")
+            MsgBox "Temporary file path contains unsupported characters."
+            Exit Sub
+        End If
         OutlookMessageMac = AppleScriptTask("InstrumentaAppleScriptPlugin.applescript", "SendFileWithOutlook", CStr(ParamString))
 
         Kill (tempDir & PresentationFilename & ".pdf")
@@ -400,5 +410,9 @@ Private Function BuildAppleScriptParam(emailSubject As String, emailAttachment A
     safeSubject = Replace(emailSubject, ";", ",")
     safeSubject = Replace(safeSubject, vbCr, " ")
     safeSubject = Replace(safeSubject, vbLf, " ")
+    If InStr(emailAttachment, ";") > 0 Or InStr(emailAttachment, vbCr) > 0 Or InStr(emailAttachment, vbLf) > 0 Then
+        BuildAppleScriptParam = ""
+        Exit Function
+    End If
     BuildAppleScriptParam = safeSubject & ";" & SanitizeAppleScriptPath(emailAttachment)
 End Function
