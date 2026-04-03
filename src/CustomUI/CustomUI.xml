@@ -304,6 +304,7 @@
                </splitButton>
                <button id="ObjectsIncreaseSpacingVertical" imageMso="VerticalSpacingIncrease" label="Increase vertical gap between shapes" showLabel="false" onAction="ObjectsIncreaseSpacingVertical" getEnabled="EnableWhenMultipleShapesSelected" supertip="Increases the vertical gap between the selected shapes" screentip="Increase Vertical Gap"/>
                <button id="ObjectsDecreaseSpacingVertical" imageMso="VerticalSpacingDecrease" label="Decrease vertical gap between shapes" showLabel="false" onAction="ObjectsDecreaseSpacingVertical" getEnabled="EnableWhenMultipleShapesSelected" supertip="Decreases the vertical gap between the selected shapes" screentip="Decrease Vertical Gap"/>
+               <button id="GapEqualizerButton" label="Gap Equalizer" imageMso="DistributeHorizontally" onAction="ShowGapEqualizer" getEnabled="EnableWhenMultipleShapesSelected" screentip="Smart Gap Equalizer" supertip="Setzt exakte Abstände zwischen Shapes. Unterstützt Custom-Wert (pt), Durchschnitt, Min und Max des aktuellen Abstands. Horizontal und/oder vertikal." showLabel="false"/>
                <separator id="separatorTableAlign"/>
                <button id="ObjectsArrangeShapesButton" imageMso="SlidesPerPage9Slides" label="Arrange shapes" showLabel="false" onAction="ArrangeShapes" getEnabled="EnableWhenMultipleShapesSelected" supertip="Arranges the selected shapes into a structured layout" screentip="Arrange Shapes"/>
                <splitButton id="TableAlignSplitButton" size="normal" showLabel="false">
@@ -966,6 +967,7 @@
                </splitButton>
                <button id="TabViewObjectsIncreaseSpacingVertical" imageMso="VerticalSpacingIncrease" label="Increase vertical gap between shapes" showLabel="false" onAction="ObjectsIncreaseSpacingVertical" getEnabled="EnableWhenMultipleShapesSelected" supertip="Increases the vertical gap between the selected shapes" screentip="Increase Vertical Gap"/>
                <button id="TabViewObjectsDecreaseSpacingVertical" imageMso="VerticalSpacingDecrease" label="Decrease vertical gap between shapes" showLabel="false" onAction="ObjectsDecreaseSpacingVertical" getEnabled="EnableWhenMultipleShapesSelected" supertip="Decreases the vertical gap between the selected shapes" screentip="Decrease Vertical Gap"/>
+               <button id="TabViewGapEqualizerButton" label="Gap Equalizer" imageMso="DistributeHorizontally" onAction="ShowGapEqualizer" getEnabled="EnableWhenMultipleShapesSelected" screentip="Smart Gap Equalizer" supertip="Setzt exakte Abstände zwischen Shapes. Unterstützt Custom-Wert (pt), Durchschnitt, Min und Max des aktuellen Abstands. Horizontal und/oder vertikal." showLabel="false"/>
                <separator id="TabViewseparatorTableAlign"/>
                <button id="TabViewObjectsArrangeShapesButton" imageMso="SlidesPerPage9Slides" label="Arrange shapes" showLabel="false" onAction="ArrangeShapes" getEnabled="EnableWhenMultipleShapesSelected" supertip="Arranges the selected shapes into a structured layout" screentip="Arrange Shapes"/>
                <splitButton id="TabViewTableAlignSplitButton" size="normal" showLabel="false">

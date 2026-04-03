@@ -4,6 +4,39 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 
 ---
 
+## [Schritt 10] – Smart Gap Equalizer (2026-04-03)
+
+### Neu
+
+- **`src/Modules/modGapEqualizer.bas`**: Gap Equalizer Modul:
+  - Typ `GapOptions` (Public): `Horizontal`, `Vertical`, `GapMode` (0=Custom/1=Avg/2=Min/3=Max), `CustomGapPt`, `AnchorMode` (0=Erstes fixiert/1=Bounds)
+  - `ShowGapEqualizer` (Public, Ribbon-Callback): Prüft min. 2 Shapes selektiert, öffnet Form modeless
+  - `EqualizeGaps(opts)` (Public): Sortiert Shapes, bestimmt Ziel-Gap, ruft `ApplyGaps`
+  - `GetGapInfo(isHorizontal)` (Public): Gibt Min/Max/Avg der aktuellen Gaps als String zurück (für Form-Preview)
+  - `GetShapesSorted(sr, isHorizontal, shapes())` (Public): Bubble-Sort nach Left (H) oder Top (V); kein WorksheetFunction
+  - `CalculateCurrentGaps(shapes(), isHorizontal, gaps())` (Public): Gap = Abstand zwischen Kante[i] und Kante[i+1] (negative Werte = Überlappung möglich)
+  - `ResolveTargetGap(shapes(), isHorizontal, opts)` (Private): Wählt Custom/Avg/Min/Max per eigener Schleife
+  - `ApplyGaps(shapes(), targetGap, isHorizontal, anchorMode)` (Public): AnchorMode=0 → erstes Shape fixiert, jedes folgende relativ positioniert; AnchorMode=1 → Gesamtbounds beibehalten, gleichmäßig verteilen
+- **`src/Forms/frmGapEqualizer.frm`**: Steuerform:
+  - `InitForm()`: Defaults (H-Richtung, Average, Anchor=First)
+  - `optCustom/Average/Minimum/Maximum_Click`: Aktiviert/deaktiviert `txtGapPt`
+  - `btnRefresh_Click`: Ruft `GetGapInfo` und aktualisiert `lblCurrentInfo`
+  - `btnApply_Click`: Baut `GapOptions`, ruft `EqualizeGaps`, refresh danach
+  - Controls müssen in VBA-IDE angelegt werden (kein .frx)
+- **`src/CustomUI/CustomUI.xml`**: `GapEqualizerButton` nach `ObjectsDecreaseSpacingVertical` in `ObjectsGroup`; `TabViewGapEqualizerButton` entsprechend.
+
+### Technische Entscheidungen
+
+| Thema | Entscheidung |
+|---|---|
+| Gap-Definition | Abstand zwischen rechter/unterer Kante Shape[i] und linker/oberer Kante Shape[i+1] |
+| Negative Gaps | Korrekt berechnet (überlappende Shapes) und können auf 0 gesetzt werden |
+| Sort | Bubble-Sort (kein WorksheetFunction in PPT-VBA verfügbar) |
+| AnchorMode=1 | Gleichmäßige Verteilung innerhalb Gesamtbounds (wie PPT Distribute, aber mit Ziel-Gap) |
+| Mindestanzahl | 2 Shapes (1 Gap), kein Minimum von 3 – auch mit 2 Shapes sinnvoll für Custom-Gap |
+
+---
+
 ## [Schritt 9] – User-Name-Stempel (2026-04-03)
 
 ### Neu
