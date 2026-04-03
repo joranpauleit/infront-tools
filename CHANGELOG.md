@@ -4,6 +4,22 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 
 ---
 
+## [Schritt 12] – Bug Fixing + TESTING.md (2026-04-03)
+
+### Bugfixes
+
+| Datei | Bug | Fix |
+|---|---|---|
+| `modRedBox.bas` | Tote Konstante `REDBOX_COLOR = &H0000CC00` (nie verwendet, falsch kommentiert) | Entfernt, Klärungskommentar hinzugefügt |
+| `modMasterImport.bas` | `srcPres.Slides(1).Copy` wirft Runtime Error wenn Quelldatei 0 Folien hat | Guard `If srcPres.Slides.Count = 0` → Close + Meldung vor Copy |
+| `frmGapEqualizer.frm` | `txtGapPt` blieb aktiv wenn `optAnchorBounds` gewählt → Custom-Gap wird in Bounds-Modus ignoriert (irreführend) | `optAnchorBounds_Click` deaktiviert `txtGapPt`; `optAnchorFirst_Click` reaktiviert wenn `optCustom` aktiv |
+| `modFormatPainterPlus.bas` | `Public Type ApplyOptions` deklariert nach erster Verwendung (Zeile 414 vs. 175) | Typ an den Anfang des Moduls verschoben (nach `FormatSnapshot`); doppelte Deklaration am Ende entfernt |
+
+### Neu
+- **`TESTING.md`**: Vollständiger manueller Testplan mit Checkboxen für alle 11 Feature-Schritte; Platform-Matrix (Windows/Mac); Regressionstest-Abschnitt für Instrumenta-Basisfunktionen
+
+---
+
 ## [Schritt 11] – Red Box (2026-04-03)
 
 ### Neu

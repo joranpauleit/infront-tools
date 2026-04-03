@@ -21,9 +21,7 @@ Option Explicit
 
 Private Const REDBOX_TAG_KEY   As String = "InfrontRedBox"
 Private Const REDBOX_TAG_VALUE As String = "1"
-Private Const REDBOX_COLOR     As Long = &H0000CC00   ' RGB(0, 204, 0) in VBA-BGR…
-' Hinweis: VBA RGB(204, 0, 0) = rot; &H0000CC = 204 decimal im Blau-Kanal wäre blau.
-' Wir verwenden RGB() direkt für Klarheit:
+' Farbe: RGB(204, 0, 0) direkt in den Funktionen verwendet (kein Literal nötig)
 Private Const REDBOX_LINE_WEIGHT As Single = 2.5
 Private Const REDBOX_PADDING     As Single = 6    ' pt Abstand um Selektion
 Private Const DEFAULT_W          As Single = 200  ' pt Breite wenn nichts selektiert

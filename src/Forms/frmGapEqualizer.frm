@@ -97,11 +97,13 @@ End Sub
 
 
 ' -----------------------------------------------------------------------
-' Zweck:      txtGapPt nur aktivieren wenn optCustom gewählt ist.
+' Zweck:      txtGapPt nur aktivieren wenn optCustom UND optAnchorFirst gewählt.
+'             Im Bounds-Modus wird der Custom-Wert ignoriert (Gap wird aus
+'             Bounds/Shape-Summe berechnet).
 ' -----------------------------------------------------------------------
 Private Sub optCustom_Click()
-    txtGapPt.Enabled = True
-    txtGapPt.SetFocus
+    txtGapPt.Enabled = (optAnchorFirst.Value = True)
+    If txtGapPt.Enabled Then txtGapPt.SetFocus
 End Sub
 
 Private Sub optAverage_Click()
@@ -113,6 +115,16 @@ Private Sub optMinimum_Click()
 End Sub
 
 Private Sub optMaximum_Click()
+    txtGapPt.Enabled = False
+End Sub
+
+Private Sub optAnchorFirst_Click()
+    ' Im First-Anchor-Modus ist Custom-Gap nutzbar
+    If optCustom.Value Then txtGapPt.Enabled = True
+End Sub
+
+Private Sub optAnchorBounds_Click()
+    ' Im Bounds-Modus wird der Gap aus Bounds/Shape-Summe berechnet – Custom ignoriert
     txtGapPt.Enabled = False
 End Sub
 

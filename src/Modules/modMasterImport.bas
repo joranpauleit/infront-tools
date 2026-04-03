@@ -174,6 +174,13 @@ Public Function ImportMaster(srcPath As String, masterIndex As Long, _
     imported = False
 
     ' Methode: Temporäre Folie aus Quelldatei einfügen, dann Master extrahieren
+    If srcPres.Slides.Count = 0 Then
+        srcPres.Close
+        MsgBox "Die Quelldatei enthält keine Folien – Master kann nicht kopiert werden.", _
+               vbExclamation, DLG_TITLE
+        Exit Function
+    End If
+
     On Error Resume Next
     srcPres.Slides(1).Copy
     Dim tempSlide As Slide

@@ -56,6 +56,25 @@ End Type
 Public g_Snapshot As FormatSnapshot
 Public g_SnapshotValid As Boolean
 
+' --- Apply-Optionen (hier deklariert damit alle Sub/Function-Signaturen stimmen)
+
+Public Type ApplyOptions
+    FillColor       As Boolean
+    LineColor       As Boolean
+    LineWeight      As Boolean
+    LineDash        As Boolean
+    FontName        As Boolean
+    FontSize        As Boolean
+    FontBold        As Boolean
+    FontItalic      As Boolean
+    FontUnderline   As Boolean
+    FontColor       As Boolean
+    TextAlignH      As Boolean
+    TextAlignV      As Boolean
+    ShapeWidth      As Boolean
+    ShapeHeight     As Boolean
+End Type
+
 
 ' =============================================================================
 ' ÖFFENTLICHE ENTRY-POINTS
@@ -407,23 +426,4 @@ Private Function ApplyToShape(shp As Shape, opts As ApplyOptions) As Boolean
 End Function
 
 
-' =============================================================================
-' HILFSTYP – von frmFormatPainterPlus befüllt und übergeben
-' =============================================================================
-
-Public Type ApplyOptions
-    FillColor       As Boolean
-    LineColor       As Boolean
-    LineWeight      As Boolean
-    LineDash        As Boolean
-    FontName        As Boolean
-    FontSize        As Boolean
-    FontBold        As Boolean
-    FontItalic      As Boolean
-    FontUnderline   As Boolean
-    FontColor       As Boolean
-    TextAlignH      As Boolean
-    TextAlignV      As Boolean
-    ShapeWidth      As Boolean
-    ShapeHeight     As Boolean
-End Type
+' (ApplyOptions-Typ ist oben im Modul deklariert)
