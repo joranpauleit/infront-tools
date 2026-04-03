@@ -603,6 +603,10 @@
                <dropDown id="InstrumentaScriptPresets" label="Preset" screentip="Select a saved script preset" showLabel="false" getItemCount="ScriptPreset_GetItemCount" getItemLabel="ScriptPreset_GetItemLabel" getItemID="ScriptPreset_GetItemID" onAction="ScriptPreset_OnAction"/>
                <button id="InstrumentaScriptPresetRun" label="Run preset" screentip="Run the selected preset" imageMso="MacroPlay" showLabel="false" onAction="ScriptPreset_Run"/>
             </group>
+            <group id="InfrontReviewGroup" label="Review" imageMso="ReviewNewComment" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="InsertUserStampButton" label="Stempel setzen" imageMso="ReviewInsertComment" onAction="InsertUserStamp" screentip="User-Stempel setzen" supertip="Setzt einen Review-Stempel (Name + Datum/Zeit) auf die aktuelle, alle oder selektierte Folien. Der Stempel wird unten rechts als kleiner grauer Text eingefügt und kann jederzeit entfernt werden."/>
+               <button id="RemoveUserStampsButton" label="Stempel entfernen" imageMso="ReviewDeleteAllCommentsInDoc" onAction="RemoveUserStamps" screentip="User-Stempel entfernen" supertip="Entfernt alle User-Stempel (InfrontUserStamp) aus der gesamten Präsentation."/>
+            </group>
             <group id="InfrontQualityGroup" label="Quality" imageMso="ReviewTrackChanges" tag="P" getVisible="InstrumentaGetVisible">
                <button id="BrandCheckButton" label="Brand Check" imageMso="ReviewRejectAllChangesInDoc" onAction="ShowBrandCheck" screentip="Brand Check" supertip="Prüft die aktive Präsentation auf Einhaltung von Markenrichtlinien (Schriftarten, Farben, Schriftgrößen). Konfiguration über Infront_BrandConfig.ini im Add-in-Ordner."/>
             </group>
@@ -1264,6 +1268,10 @@
                <button id="TabViewShowInstrumentaScriptButton" label="Instrumenta script editor" imageMso="CodeEdit" showLabel="false" onAction="ShowScriptEditor" supertip="Opens the Instrumenta script editor" screentip="Instrumenta Script Editor"/>
                <dropDown id="TabViewInstrumentaScriptPresets" label="Preset" screentip="Select a saved script preset" showLabel="false" getItemCount="ScriptPreset_GetItemCount" getItemLabel="ScriptPreset_GetItemLabel" getItemID="ScriptPreset_GetItemID" onAction="ScriptPreset_OnAction"/>
                <button id="TabViewInstrumentaScriptPresetRun" label="Run preset" screentip="Run the selected preset" imageMso="MacroPlay" showLabel="false" onAction="ScriptPreset_Run"/>
+            </group>
+            <group id="TabViewInfrontReviewGroup" label="Review" imageMso="ReviewNewComment" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="TabViewInsertUserStampButton" label="Stempel setzen" imageMso="ReviewInsertComment" onAction="InsertUserStamp" screentip="User-Stempel setzen" supertip="Setzt einen Review-Stempel (Name + Datum/Zeit) auf die aktuelle, alle oder selektierte Folien. Der Stempel wird unten rechts als kleiner grauer Text eingefügt und kann jederzeit entfernt werden."/>
+               <button id="TabViewRemoveUserStampsButton" label="Stempel entfernen" imageMso="ReviewDeleteAllCommentsInDoc" onAction="RemoveUserStamps" screentip="User-Stempel entfernen" supertip="Entfernt alle User-Stempel (InfrontUserStamp) aus der gesamten Präsentation."/>
             </group>
             <group id="TabViewInfrontQualityGroup" label="Quality" imageMso="ReviewTrackChanges" tag="P" getVisible="InstrumentaGetVisible">
                <button id="TabViewBrandCheckButton" label="Brand Check" imageMso="ReviewRejectAllChangesInDoc" onAction="ShowBrandCheck" screentip="Brand Check" supertip="Prüft die aktive Präsentation auf Einhaltung von Markenrichtlinien (Schriftarten, Farben, Schriftgrößen). Konfiguration über Infront_BrandConfig.ini im Add-in-Ordner."/>

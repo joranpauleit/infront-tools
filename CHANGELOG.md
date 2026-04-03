@@ -4,6 +4,34 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 
 ---
 
+## [Schritt 9] – User-Name-Stempel (2026-04-03)
+
+### Neu
+
+- **`src/Modules/modUserStamp.bas`**: User-Stempel Modul (keine Form):
+  - `InsertUserStamp` (Public, Ribbon-Callback): Fragt Scope per Ja/Nein/Abbruch-Dialog (Aktuelle / Alle / Abbruch), ruft `BuildStampText` und `AddStampToSlide`
+  - `RemoveUserStamps` (Public, Ribbon-Callback): Zählt Stempel, bestätigt per MsgBox, ruft `DeleteAllStamps`
+  - `AddStampToSlide(sld, stampText)` (Public): Entfernt vorhandenen Stempel auf der Folie, fügt neue Textbox ein (unten rechts, 7.5 pt Calibri grau, kein Rahmen/Hintergrund), setzt Tag `InfrontUserStamp=1`
+  - `BuildStampText()` (Public): `Application.UserName + " | " + Format(Now, "DD.MM.YYYY  HH:MM")`; falls Username leer → InputBox
+  - `RemoveStampFromSlide(sld)` (Private): Rückwärts-Löschung aller Shapes mit Tag `InfrontUserStamp=1`
+  - `DeleteAllStamps()` (Private): Entfernt alle Stempel aus allen Folien, gibt Anzahl zurück
+  - `CountStamps()` (Private): Zählt vorhandene Stempel
+  - `AskScope(dlgTitle)` (Private): Ja=Aktuelle / Nein=Alle / Abbruch → -1
+  - `GetScopeSlides(scope)` (Private): SlideRange für Scope 0/1/2
+- **`src/CustomUI/CustomUI.xml`**: Neue Gruppe `InfrontReviewGroup` (label="Review") **vor** `InfrontQualityGroup` mit zwei Buttons: `InsertUserStampButton` (→ `InsertUserStamp`) und `RemoveUserStampsButton` (→ `RemoveUserStamps`); `TabViewInfrontReviewGroup` entsprechend vor `TabViewInfrontQualityGroup`.
+
+### Technische Entscheidungen
+
+| Thema | Entscheidung |
+|---|---|
+| Keine Form nötig | Scope-Abfrage per `vbYesNoCancel`-MsgBox (Ja=Aktuell / Nein=Alle / Abbruch) |
+| Idempotenz | Vorhandener Stempel auf derselben Folie wird vor Neusetzen gelöscht |
+| UserName | `Application.UserName`; leer → InputBox einmalig |
+| Stempel-Design | 7.5 pt Calibri, RGB(150,150,150), kein Rahmen, kein Hintergrund, rechts-bündig |
+| Tag-Erkennung | `Shape.Tags("InfrontUserStamp") = "1"` – persistiert in .pptx |
+
+---
+
 ## [Schritt 8] – Infront Master-Importer (2026-04-03)
 
 ### Neu
