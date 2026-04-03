@@ -326,6 +326,11 @@
                   <button id="ObjectsStretchBottomShapeTop" label="Stretch shapes to the top edge of the bottommost shape" onAction="ObjectsStretchBottomShapeTop" getEnabled="EnableWhenMultipleShapesSelected" supertip="Stretches the selected shapes to the top edge of the bottommost shape" screentip="Stretch to Bottommost Shape"/>
                </menu>
             </group>
+            <group id="InfrontDesignGroup" label="Design" imageMso="ShapesMoreShapes" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="InsertRedBoxButton" label="Red Box" imageMso="BorderColorPicker" onAction="InsertRedBox" screentip="Red Box (Outline)" supertip="Fügt einen roten Hervorhebungsrahmen ein. Shapes selektiert → umrahmt die Selektion; sonst → Folienmitte." showLabel="false"/>
+               <button id="InsertFilledRedBoxButton" label="Red Box (Filled)" imageMso="ShapeFillColorPicker" onAction="InsertFilledRedBox" screentip="Red Box (Filled)" supertip="Fügt eine halbtransparente rote Hervorhebungsfläche ein (80% transparent). Shapes selektiert → über Selektion; sonst → Folienmitte." showLabel="false"/>
+               <button id="RemoveRedBoxesButton" label="Red Boxes entfernen" imageMso="BorderNone" onAction="RemoveRedBoxes" screentip="Red Boxes entfernen" supertip="Entfernt alle Red Boxes (InfrontRedBox) von der aktuellen Folie." showLabel="false"/>
+            </group>
             <group id="InfrontSlidesGroup" label="Slides" imageMso="SlideMasterInsertLayout" tag="P" getVisible="InstrumentaGetVisible">
                <button id="AgendaWizardButton" label="Agenda Wizard" imageMso="TableOfContentsInsert" onAction="ShowAgendaWizard" screentip="Agenda Wizard" supertip="Erstellt Übersichts- und optionale Fortschrittsfolien aus einer Themen-Liste. Agenda-Folien werden mit einem internen Tag markiert und können jederzeit gelöscht und neu generiert werden."/>
                <button id="MasterImportButton" label="Master importieren" imageMso="SlideMasterView" onAction="ShowMasterImport" screentip="Master importieren" supertip="Importiert einen Slide-Master aus einer externen Präsentation (.pptx/.pptm/.ppam/.potx) in die aktive Präsentation. Optional: Master auf alle / selektierte Folien anwenden und ungenutzte Masters entfernen."/>
@@ -991,6 +996,11 @@
             </group>
          </tab>
          <tab id="TabViewInstrumentaTables" label="[Tables]" getVisible="InstrumentaGetVisibleMultiTabView">
+            <group id="TabViewInfrontDesignGroup" label="Design" imageMso="ShapesMoreShapes" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="TabViewInsertRedBoxButton" label="Red Box" imageMso="BorderColorPicker" onAction="InsertRedBox" screentip="Red Box (Outline)" supertip="Fügt einen roten Hervorhebungsrahmen ein. Shapes selektiert → umrahmt die Selektion; sonst → Folienmitte." showLabel="false"/>
+               <button id="TabViewInsertFilledRedBoxButton" label="Red Box (Filled)" imageMso="ShapeFillColorPicker" onAction="InsertFilledRedBox" screentip="Red Box (Filled)" supertip="Fügt eine halbtransparente rote Hervorhebungsfläche ein (80% transparent). Shapes selektiert → über Selektion; sonst → Folienmitte." showLabel="false"/>
+               <button id="TabViewRemoveRedBoxesButton" label="Red Boxes entfernen" imageMso="BorderNone" onAction="RemoveRedBoxes" screentip="Red Boxes entfernen" supertip="Entfernt alle Red Boxes (InfrontRedBox) von der aktuellen Folie." showLabel="false"/>
+            </group>
             <group id="TabViewInfrontSlidesGroup" label="Slides" imageMso="SlideMasterInsertLayout" tag="P" getVisible="InstrumentaGetVisible">
                <button id="TabViewAgendaWizardButton" label="Agenda Wizard" imageMso="TableOfContentsInsert" onAction="ShowAgendaWizard" screentip="Agenda Wizard" supertip="Erstellt Übersichts- und optionale Fortschrittsfolien aus einer Themen-Liste. Agenda-Folien werden mit einem internen Tag markiert und können jederzeit gelöscht und neu generiert werden."/>
                <button id="TabViewMasterImportButton" label="Master importieren" imageMso="SlideMasterView" onAction="ShowMasterImport" screentip="Master importieren" supertip="Importiert einen Slide-Master aus einer externen Präsentation (.pptx/.pptm/.ppam/.potx) in die aktive Präsentation. Optional: Master auf alle / selektierte Folien anwenden und ungenutzte Masters entfernen."/>

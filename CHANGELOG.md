@@ -4,6 +4,33 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 
 ---
 
+## [Schritt 11] – Red Box (2026-04-03)
+
+### Neu
+
+- **`src/Modules/modRedBox.bas`**: Red Box Modul (keine Form):
+  - `InsertRedBox` (Public, Ribbon-Callback): Outline-Variante (kein Fill, roter Rahmen 2.5 pt). Shapes selektiert → Bounding-Box der Selektion + 6 pt Padding; sonst → Folienmitte (200 × 120 pt)
+  - `InsertFilledRedBox` (Public, Ribbon-Callback): Filled-Variante (RGB 204,0,0, 80% Transparenz + Rahmen)
+  - `RemoveRedBoxes` (Public, Ribbon-Callback): Entfernt alle Red Boxes (Tag `InfrontRedBox=1`) von der aktuellen Folie; Bestätigung nur wenn > 3
+  - `CreateRedBoxShape(sld, left, top, w, h, filled)` (Public): Erstellt `msoShapeRectangle`, setzt Tag, formatiert Linie und optional Fill
+  - `GetSelectionBounds(padding, left, top, w, h)` (Public): Berechnet Bounding-Box aller selektierten Shapes inkl. Padding; Fallback auf CenterBoxOnSlide
+  - `CenterBoxOnSlide(...)` (Private): Berechnet zentrierte Position; Fallback-Werte 720×540 pt wenn PageSetup nicht lesbar
+  - `HasShapesSelected()` (Private): Prüft `Selection.Type = ppSelectionShapes`
+  - `CountRedBoxesOnSlide` / `DeleteRedBoxesFromSlide` (Private): Tag-basierte Suche und rückwärts-Löschung
+- **`src/CustomUI/CustomUI.xml`**: Neue Gruppe `InfrontDesignGroup` (label="Design") **vor** `InfrontSlidesGroup` mit drei Buttons: `InsertRedBoxButton`, `InsertFilledRedBoxButton`, `RemoveRedBoxesButton`; `TabViewInfrontDesignGroup` entsprechend.
+
+### Technische Entscheidungen
+
+| Thema | Entscheidung |
+|---|---|
+| Keine Form | Zwei Ribbon-Varianten (Outline/Filled) als separate Buttons statt Auswahl-Dialog |
+| Positionierung | Selektion vorhanden → Bounding-Box + Padding; sonst → Folienmitte |
+| Bestätigung | Nur bei > 3 Boxes (1–3 offensichtlich gewollt) |
+| Farbe | RGB(204, 0, 0) – kräftiges Rot; als VBA `RGB()`-Aufruf (kein COLORREF-Literal) |
+| Tag | `InfrontRedBox=1` – persistiert in .pptx, zuverlässige Wiedererkennung |
+
+---
+
 ## [Schritt 10] – Smart Gap Equalizer (2026-04-03)
 
 ### Neu
