@@ -4,6 +4,40 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 
 ---
 
+## [Schritt 6] – Global Find & Replace (2026-04-03)
+
+### Neu
+
+- **`src/Modules/modFindReplace.bas`**: Suchen & Ersetzen Modul:
+  - Typ `FindReplaceOptions` (Public): `FindText`, `ReplaceText`, `MatchCase`, `WholeWord`, `Scope` (0/1/2), `IncludeNotes`, `TargetShapes` (0/1/2)
+  - `ShowFindReplace` (Public, Ribbon-Callback): Öffnet Form modeless
+  - `ExecuteReplace(opts)` (Public): Traversiert Slides per Scope, je Shape rekursiv/zellenweise/run-weise, gibt Anzahl Ersetzungen zurück
+  - `CountMatches(opts)` (Public): Identische Traversierung ohne Ersatz (Preview)
+  - `ReplaceInShape` / `CountInShape` (Private): Gruppen rekursiv, Tabellen zellenweise, TextFrame an `ReplaceInTextRange` delegiert
+  - `ReplaceInTextRange` (Public): Run-weiser Ersatz – Formatierung (Fett/Kursiv/Farbe) jedes Runs bleibt erhalten; Treffer über Run-Grenzen werden bewusst nicht ersetzt
+  - `ReplaceString` (Private): Eigene InStr-Schleife mit MatchCase + WholeWord-Unterstützung (kein `VBA.Replace` da kein WholeWord)
+  - `IsWordChar` (Private): Wortzeichen-Test für WholeWord-Logik
+  - `GetScopeSlides` (Private): Gibt SlideRange für Scope 0/1/2 zurück
+  - `ShapeMatchesTarget` (Private): Filter für Platzhalter vs. Textboxen vs. Alle
+- **`src/Forms/frmFindReplace.frm`**: Steuerform:
+  - `UserForm_Initialize`: Setzt Defaults (Alle Folien, Alle Shapes)
+  - `btnPreview_Click`: Zählt Treffer, zeigt in `lblResult`
+  - `btnReplaceAll_Click`: Bestätigung bei Scope=Alle, führt aus, zeigt Ergebnis
+  - Enter-Key-Handling: txtFind→txtReplace→Ersetzen
+  - Controls müssen in VBA-IDE angelegt werden (kein .frx)
+- **`src/CustomUI/CustomUI.xml`**: `FindReplaceButton` nach `ReplaceDialog` in `AllGroup` (Single + Multi-Tab)
+
+### Technische Entscheidungen
+
+| Thema | Entscheidung |
+|---|---|
+| Formatierungserhalt | Run-weiser Ersatz: Formatierung bleibt je Run erhalten; Treffer über Run-Grenzen werden nicht ersetzt (dokumentiert) |
+| WholeWord | Eigene `IsWordChar`-Prüfung statt Regex (nicht in PPT-VBA verfügbar) |
+| Sprechernotizen | Optional über `chkIncludeNotes`; greift auf `sld.NotesPage.Shapes` zu |
+| Bestätigung | Nur bei Scope=Alle Folien um versehentliche Massen-Ersetzungen zu verhindern |
+
+---
+
 ## [Schritt 5] – Format Painter Plus (2026-04-03)
 
 ### Neu

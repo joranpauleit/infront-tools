@@ -605,6 +605,7 @@
             <group id="AllGroup" label="Advanced" imageMso="AdvancedFileProperties" tag="PR" getVisible="InstrumentaGetVisible">
                <button idMso="FileNewDefault" showLabel="false"/>
                <button idMso="ReplaceDialog" showLabel="false"/>
+               <button id="FindReplaceButton" label="Find &amp; Replace+" imageMso="FindAndReplace" onAction="ShowFindReplace" screentip="Find &amp; Replace+" supertip="Sucht und ersetzt Text über alle, selektierte oder die aktuelle Folie. Mit Scope-Filter, Shape-Filter und optionalem Einschluss von Sprechernotizen. Zeichenformatierung (Fett, Kursiv usw.) bleibt erhalten." showLabel="false"/>
                <button idMso="AdvancedFileProperties" imageMso="ChooseForm" showLabel="false"/>
                <menu id="CleaningMenu" label="Cleaning tools" imageMso="ClearMenu" showLabel="false" supertip="Opens the tools for cleaning and fixing common slide issues" screentip="Cleaning Tools">
                   <button id="cleaning0" label="Move to end and hide selected slides" imageMso="Clear" onAction="CleanUpHideAndMoveSelectedSlides" supertip="Moves the selected slides to the end of the presentation and hides them from the slideshow" screentip="Move and hide slides"/>
@@ -1262,6 +1263,7 @@
             <group id="TabViewAllGroup" label="Advanced" imageMso="AdvancedFileProperties" tag="PR" getVisible="InstrumentaGetVisible">
                <button idMso="FileNewDefault" showLabel="false"/>
                <button idMso="ReplaceDialog" showLabel="false"/>
+               <button id="TabViewFindReplaceButton" label="Find &amp; Replace+" imageMso="FindAndReplace" onAction="ShowFindReplace" screentip="Find &amp; Replace+" supertip="Sucht und ersetzt Text über alle, selektierte oder die aktuelle Folie. Mit Scope-Filter, Shape-Filter und optionalem Einschluss von Sprechernotizen. Zeichenformatierung (Fett, Kursiv usw.) bleibt erhalten." showLabel="false"/>
                <button idMso="AdvancedFileProperties" imageMso="ChooseForm" showLabel="false"/>
                <menu id="TabViewCleaningMenu" label="Cleaning tools" imageMso="ClearMenu" showLabel="false" supertip="Opens the tools for cleaning and fixing common slide issues" screentip="Cleaning Tools">
                   <button id="TabViewcleaning0" label="Move to end and hide selected slides" imageMso="Clear" onAction="CleanUpHideAndMoveSelectedSlides" supertip="Moves the selected slides to the end of the presentation and hides them from the slideshow" screentip="Move and hide slides"/>
