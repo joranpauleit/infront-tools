@@ -1,28 +1,74 @@
 /**
  * CornerRadiusPanel.tsx
- * Feature-Panel: Eckenradius setzen.
- * Vollständige Implementierung: Schritt 4.
+ * Feature-Panel: Eckenradius setzen (vollständige Implementierung).
+ *
+ * Unterstützte Shape-Typen: roundedRectangle
+ * Nicht unterstützt: alle anderen Typen (werden mit Hinweis übersprungen)
+ *
+ * Pixel → Punkte: 1 px = 0,75 pt (96 DPI)
+ * Normierung: adjustment[0] = ptValue / (min(width, height) / 2), geklemmt [0, 1]
+ *
+ * Undo-Strategie: Session-Snapshot vor Änderung (kein natives Office.js-Undo).
  */
 
 import * as React from "react";
 import { Stack } from "@fluentui/react/lib/Stack";
 import { Text } from "@fluentui/react/lib/Text";
-import { PrimaryButton } from "@fluentui/react/lib/Button";
+import { PrimaryButton, DefaultButton } from "@fluentui/react/lib/Button";
 import { TextField } from "@fluentui/react/lib/TextField";
+import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
+import { MessageBar, MessageBarType } from "@fluentui/react/lib/MessageBar";
+import { Separator } from "@fluentui/react/lib/Separator";
+
 import NotificationBar, { NotificationType } from "../shared/NotificationBar";
+import {
+  applyCornerRadius,
+  readCurrentRadiusPx,
+} from "../../../features/cornerRadius/CornerRadiusService";
 
 interface Notification {
   message: string;
-  type: NotificationType;
+  type:    NotificationType;
 }
 
+// Gängige Radius-Presets
+const PRESETS = [
+  { label: "Kein Radius",  value: 0 },
+  { label: "Klein (4 px)", value: 4 },
+  { label: "Mittel (8 px)", value: 8 },
+  { label: "Groß (16 px)", value: 16 },
+  { label: "Rund (50 px)", value: 50 },
+];
+
 const CornerRadiusPanel: React.FC = () => {
-  const [radiusPx, setRadiusPx]           = React.useState<string>("8");
+  const [radiusInput, setRadiusInput]     = React.useState<string>("8");
   const [notification, setNotification]   = React.useState<Notification | null>(null);
   const [isRunning, setIsRunning]         = React.useState(false);
+  const [isReading, setIsReading]         = React.useState(false);
+  const [currentPx, setCurrentPx]         = React.useState<number | null>(null);
 
+  /** Liest den Radius des ersten selektierten Shapes und zeigt ihn an. */
+  const handleReadCurrent = async () => {
+    setIsReading(true);
+    setCurrentPx(null);
+    const px = await readCurrentRadiusPx();
+    setIsReading(false);
+    if (px !== null) {
+      setCurrentPx(px);
+      setRadiusInput(String(px));
+      setNotification({ message: `Aktueller Radius: ${px} px`, type: "info" });
+    } else {
+      setNotification({
+        message: "Kein Rounded-Rectangle selektiert oder Radius nicht lesbar.",
+        type: "warning",
+      });
+    }
+  };
+
+  /** Validiert und wendet den Eckenradius an. */
   const handleApply = async () => {
-    const px = parseFloat(radiusPx);
+    const px = parseFloat(radiusInput);
+
     if (isNaN(px) || px < 0) {
       setNotification({ message: "Bitte einen gültigen Pixelwert eingeben (≥ 0).", type: "error" });
       return;
@@ -32,58 +78,27 @@ const CornerRadiusPanel: React.FC = () => {
     setNotification(null);
 
     try {
-      await PowerPoint.run(async (context) => {
-        const selection = context.presentation.getSelectedShapes();
-        selection.load("items");
-        await context.sync();
+      const result = await applyCornerRadius(px);
 
-        if (selection.items.length === 0) {
-          setNotification({ message: "Keine Shapes selektiert.", type: "warning" });
-          return;
-        }
-
-        // Pixel → Punkte: 1pt = 1/72 Zoll; 1px bei 96 DPI = 0.75pt
-        const ptValue = px * 0.75;
-
-        let applied  = 0;
-        let skipped  = 0;
-
-        for (const shape of selection.items) {
-          shape.load("geometricShapeType");
-        }
-        await context.sync();
-
-        for (const shape of selection.items) {
-          // Nur Shapes mit anpassbarer Geometrie unterstützen Eckenradius.
-          // roundedRectangle (GeometricShapeType 62) hat adjustment[0] = Radius (normiert 0–1).
-          // Andere Shapes werden übersprungen.
-          const gst = shape.geometricShapeType;
-
-          // GeometricShapeType.roundedRectangle = "roundedRectangle"
-          if (gst === PowerPoint.GeometricShapeType.roundedRectangle) {
-            // adjustment[0] steuert den Radius: 0 = kein Radius, 1 = max. Radius.
-            // Normierung: ptValue / (min(width, height) / 2)
-            // Da width/height in diesem Kontext nicht immer geladen ist, nutzen wir
-            // einen pragmatischen Faktor: ptValue / 100 (Schätzwert für Standardgrößen).
-            // Schritt 4 lädt width/height für präzisere Normierung.
-            shape.load(["width", "height"]);
-            await context.sync();
-
-            const maxRadius = Math.min(shape.width, shape.height) / 2;
-            const normalized = maxRadius > 0 ? Math.min(ptValue / maxRadius, 1.0) : 0;
-            shape.geometricShape.adjustments.getItemAt(0).value = normalized;
-            applied++;
-          } else {
-            skipped++;
-          }
-        }
-
-        await context.sync();
+      if (result.applied === 0 && result.skipped === 0 && result.errors.length === 0) {
+        setNotification({ message: "Keine Shapes selektiert.", type: "warning" });
+      } else if (result.applied === 0 && result.errors.length === 0) {
         setNotification({
-          message: `${applied} Shape(s) angepasst, ${skipped} übersprungen.`,
-          type: applied > 0 ? "success" : "warning",
+          message: `Keine unterstützten Shapes gefunden. ${result.skipped} Shape(s) übersprungen (nur Rounded Rectangle wird unterstützt).`,
+          type: "warning",
         });
-      });
+      } else {
+        const skipNote = result.skipped > 0
+          ? ` ${result.skipped} übersprungen (nicht Rounded Rectangle).`
+          : "";
+        const errNote = result.errors.length > 0
+          ? ` Fehler bei: ${result.errors.join(", ")}.`
+          : "";
+        setNotification({
+          message: `${result.applied} Shape(s) angepasst.${skipNote}${errNote}`,
+          type: result.errors.length > 0 ? "warning" : "success",
+        });
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setNotification({ message: `Fehler: ${message}`, type: "error" });
@@ -92,13 +107,19 @@ const CornerRadiusPanel: React.FC = () => {
     }
   };
 
+  const parsedPx = parseFloat(radiusInput);
+  const ptPreview = !isNaN(parsedPx) && parsedPx >= 0
+    ? (parsedPx * 0.75).toFixed(2)
+    : "—";
+
   return (
     <Stack className="panel-container" tokens={{ childrenGap: 12 }}>
       <Text className="panel-title">Eckenradius setzen</Text>
-      <Text className="panel-description">
-        Setzt den Eckenradius aller selektierten Rounded-Rectangle-Shapes.
-        Andere Shape-Typen werden übersprungen.
-      </Text>
+
+      <MessageBar messageBarType={MessageBarType.info} isMultiline>
+        Unterstützt: <strong>Rounded Rectangle</strong>. Alle anderen Shape-Typen
+        (Rechteck, Ellipse, Gruppe, Tabelle etc.) werden übersprungen.
+      </MessageBar>
 
       <NotificationBar
         message={notification?.message ?? null}
@@ -106,29 +127,74 @@ const CornerRadiusPanel: React.FC = () => {
         onDismiss={() => setNotification(null)}
       />
 
-      <TextField
-        label="Eckenradius in Pixel (z. B. 8):"
-        value={radiusPx}
-        onChange={(_e, val) => setRadiusPx(val ?? "")}
-        type="number"
-        min={0}
-        step={1}
-        suffix="px"
-        styles={{ root: { maxWidth: 200 } }}
-      />
+      {/* Eingabefeld */}
+      <Stack horizontal verticalAlign="end" tokens={{ childrenGap: 8 }}>
+        <TextField
+          label="Eckenradius in Pixel:"
+          value={radiusInput}
+          onChange={(_e, val) => setRadiusInput(val ?? "")}
+          type="number"
+          min={0}
+          step={1}
+          suffix="px"
+          styles={{ root: { flex: 1 } }}
+          description={`≈ ${ptPreview} pt (bei 96 DPI, 1 px = 0,75 pt)`}
+        />
+        <DefaultButton
+          text={isReading ? "…" : "Auslesen"}
+          onClick={handleReadCurrent}
+          disabled={isReading || isRunning}
+          title="Aktuellen Radius des selektierten Shapes auslesen"
+          styles={{ root: { marginBottom: 22 } }}
+        />
+      </Stack>
 
-      <Text variant="small" style={{ color: "#888" }}>
-        Umrechnung: 1 px = 0,75 pt (bei 96 DPI).
-        <br />
-        Unterstützt: Rounded Rectangle. Nicht unterstützt: alle anderen Shape-Typen.
-      </Text>
+      {currentPx !== null && (
+        <Text variant="small" style={{ color: "#555" }}>
+          Gelesener Wert: {currentPx} px
+        </Text>
+      )}
 
-      <PrimaryButton
-        text={isRunning ? "Wird angewendet…" : "Anwenden"}
-        onClick={handleApply}
-        disabled={isRunning}
-        styles={{ root: { width: "100%", marginTop: 8 } }}
-      />
+      {/* Presets */}
+      <Separator>Schnell-Presets</Separator>
+      <Stack horizontal wrap tokens={{ childrenGap: 6 }}>
+        {PRESETS.map((p) => (
+          <DefaultButton
+            key={p.value}
+            text={p.label}
+            onClick={() => setRadiusInput(String(p.value))}
+            styles={{ root: { minWidth: "auto", padding: "0 10px", height: 28, fontSize: 12 } }}
+          />
+        ))}
+      </Stack>
+
+      {/* Anwenden */}
+      {isRunning ? (
+        <Spinner size={SpinnerSize.small} label="Wird angewendet…" />
+      ) : (
+        <PrimaryButton
+          text="Auf selektierte Shapes anwenden"
+          onClick={handleApply}
+          disabled={isNaN(parsedPx) || parsedPx < 0}
+          styles={{ root: { width: "100%", marginTop: 8 } }}
+        />
+      )}
+
+      {/* Hinweise */}
+      <Separator />
+      <Stack tokens={{ childrenGap: 4 }}>
+        <Text variant="small" style={{ color: "#666" }}>
+          <strong>Undo-Hinweis:</strong> Office.js bietet kein natives Undo für
+          Add-in-Änderungen. Ein Snapshot wird im Session-State gespeichert.
+          Das Dokument-Undo (⌘+Z) funktioniert nach Add-in-Operationen möglicherweise
+          nicht zuverlässig.
+        </Text>
+        <Text variant="small" style={{ color: "#666" }}>
+          <strong>Skalierung:</strong> Der Radius wird relativ zur Shape-Größe
+          normiert. Sehr kleine Shapes können einen kleineren Radius zeigen als
+          eingegeben wenn der Wert die maximale Shape-Ausdehnung überschreitet.
+        </Text>
+      </Stack>
     </Stack>
   );
 };
