@@ -4,6 +4,35 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 
 ---
 
+## [Schritt 5] – Format Painter Plus (2026-04-03)
+
+### Neu
+
+- **`src/Modules/modFormatPainterPlus.bas`**: Format Painter Plus Modul:
+  - Typen `FormatSnapshot` und `ApplyOptions` (Public) – von der Form lesbar/befüllbar
+  - `ShowFormatPainterPlus` (Public, Ribbon-Callback): Prüft genau 1 selektiertes Source-Shape, ruft `CaptureFormat` auf, öffnet Form modeless
+  - `CaptureFormat(shp)` (Public): Liest Fill (Type/Color/Transparency), Line (Visible/Color/Weight/Dash), Font (Name/Size/Bold/Italic/Underline/Color, aus erstem Run des ersten Paragraphen), TextAlign (H/V), ShapeWidth/Height in `g_Snapshot`
+  - `ApplyFormatToSelection(opts)` (Public): Iteriert selektierte Shapes, ruft `ApplyToShape` auf, Zusammenfassung per MsgBox
+  - `ApplyToShape(shp, opts)` (Private): Wendet jede Eigenschaft einzeln mit `On Error Resume Next` an – keine Abstürze bei nicht unterstützten Shape-Typen
+- **`src/Forms/frmFormatPainterPlus.frm`**: Steuerform mit 14 Checkboxen in 5 Frames (Füllung / Linie / Schrift / Ausrichtung / Größe):
+  - `InitForm()`: Befüllt `lblSourceInfo` mit Kurzübersicht der gecapturten Werte, setzt Checkboxen (alle außer Breite/Höhe standardmäßig aktiviert)
+  - `btnApply_Click`: Liest Checkboxen, baut `ApplyOptions`, ruft `modFormatPainterPlus.ApplyFormatToSelection`
+  - `btnSelectAll_Click` / `btnNone_Click`: Alle aktivieren / deaktivieren
+  - Controls müssen in VBA-IDE angelegt werden (kein .frx – Projektkonvention)
+- **`src/CustomUI/CustomUI.xml`**: `FormatPainterPlusButton` nach `ColorPickerButton` in `InfrontFormatGroup`; `TabViewFormatPainterPlusButton` in `TabViewInfrontFormatGroup`. `getEnabled="EnableWhenExactlyOneShape"` (Quell-Selektion).
+
+### Technische Entscheidungen
+
+| Thema | Entscheidung |
+|---|---|
+| Font-Capture | Nur erster Run des ersten Paragraphen – repräsentiert den dominanten Stil |
+| `On Error Resume Next` pro Property | Vermeidet Abbruch bei Shapes ohne Fill/Line/TextFrame |
+| Größe (Breite/Höhe) | Standardmäßig deaktiviert – ungewolltes Resize-Risiko zu hoch |
+| Modeless Form | Nutzer kann Shapes selektieren ohne Form zu schließen |
+| `EnableWhenExactlyOneShape` | Callback aus Instrumenta-Basis – stellt sicher, dass genau 1 Quell-Shape vorliegt |
+
+---
+
 ## [Schritt 4] – Brand Compliance Checker (2026-04-02)
 
 ### Neu
