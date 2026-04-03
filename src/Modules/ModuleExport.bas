@@ -140,6 +140,7 @@ Sub EmailSelectedSlides()
         
         Dim TemporaryPresentation, ThisPresentation As Presentation
         Dim PresentationFilename, EmailSubject As String
+        Dim tempDir As String
         Dim SlideLoop As Long
         Dim PresentationSlides As Slide
         Dim DotPosition As Integer
@@ -191,7 +192,6 @@ Sub EmailSelectedSlides()
         
         #If Mac Then
         
-        Dim tempDir As String
         tempDir = MacScript("return posix path of (path to temporary items) as string")
         
         If PresentationFilename & ".pptx" = ThisPresentation.name Then
@@ -201,7 +201,6 @@ Sub EmailSelectedSlides()
         ThisPresentation.SaveCopyAs tempDir & PresentationFilename & ".pptx"
         Set TemporaryPresentation = Presentations.Open(tempDir & PresentationFilename & ".pptx")
         #Else
-        Dim tempDir As String
         tempDir = Environ("TEMP") & "\"
         ThisPresentation.SaveCopyAs tempDir & PresentationFilename & ".pptx"
         Set TemporaryPresentation = Presentations.Open(tempDir & PresentationFilename & ".pptx")
@@ -279,6 +278,7 @@ Sub EmailSelectedSlidesAsPDF()
         #End If
              
         Dim PresentationFilename, EmailSubject As String
+        Dim tempDir As String
         Dim SlideLoop As Long
         Dim DotPosition As Integer
         
@@ -329,7 +329,6 @@ Sub EmailSelectedSlidesAsPDF()
         'This does not work anymore
         'OutlookMessageMac = MacSendMailViaOutlook(EmailSubject, ActivePresentation.Path & "/" & PresentationFilename & ".pptx")
     
-        Dim tempDir As String
         tempDir = MacScript("return posix path of (path to temporary items) as string")
         
         
@@ -360,7 +359,6 @@ Sub EmailSelectedSlidesAsPDF()
         
         #Else
         
-        Dim tempDir As String
         tempDir = Environ("TEMP") & "\"
         
         ActivePresentation.ExportAsFixedFormat tempDir & PresentationFilename & ".pdf", ppFixedFormatTypePDF, ppFixedFormatIntentPrint, msoFalse, , , , , ppPrintSelection
