@@ -4,6 +4,39 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 
 ---
 
+## [Schritt 8] – Infront Master-Importer (2026-04-03)
+
+### Neu
+
+- **`src/Modules/modMasterImport.bas`**: Master-Importer Modul:
+  - Typ `ImportOptions` (Public): `ApplyToAllSlides`, `ApplyToSelectedSlides`, `RemoveUnusedAfterImport`
+  - `ShowMasterImport` (Public, Ribbon-Callback): Öffnet Form modeless
+  - `LoadMastersFromFile(filePath, masterNames(), masterCount)` (Public): Öffnet Quelldatei `ReadOnly + WithWindow:=False`, liest `SlideMasters.Count` und Namen aus, schließt sofort
+  - `ImportMaster(srcPath, masterIndex, opts)` (Public): Öffnet Quelldatei, kopiert Master über Folienkopie-Trick (`Slides(1).Copy` + `Paste` → neuer Master), benennt Master, löscht temporäre Folie, wendet Master optional auf Folien an, entfernt optional ungenutzte Masters
+  - `ApplyMasterToSlides(newMaster, opts)` (Private): Wendet `CustomLayouts(1)` des neuen Masters auf alle / selektierte Folien an
+  - `CleanUpUnusedMasters()` (Public): Ermittelt verwendete Masters über `sld.CustomLayout.Parent.Index`, löscht rückwärts alle ungenutzten
+  - `BrowseForFile()` (Public): Windows `msoFileDialogFilePicker` gefiltert auf PPT-Dateien; Mac InputBox; Fallback InputBox bei Fehler
+- **`src/Forms/frmMasterImport.frm`**: Steuerform:
+  - `InitForm()`: Setzt Defaults, deaktiviert `btnImport`
+  - `btnBrowse_Click`: Ruft `BrowseForFile`, befüllt `txtSourceFile`
+  - `btnLoadMasters_Click`: Ruft `LoadMastersFromFile`, befüllt `lstMasters`, aktiviert `btnImport`
+  - `chkApplyAll_Click` / `chkApplySelected_Click`: Gegenseitiger Ausschluss
+  - `btnImport_Click`: Baut `ImportOptions`, ruft `ImportMaster`, zeigt Ergebnis in `lblStatus`
+  - Controls müssen in VBA-IDE angelegt werden (kein .frx)
+- **`src/CustomUI/CustomUI.xml`**: `MasterImportButton` nach `AgendaWizardButton` in `InfrontSlidesGroup`; `TabViewMasterImportButton` entsprechend in `TabViewInfrontSlidesGroup`.
+
+### Technische Entscheidungen
+
+| Thema | Entscheidung |
+|---|---|
+| Master-Kopier-Methode | Folienkopie-Trick: `srcPres.Slides(1).Copy` + `Paste` zieht den Master mit; temporäre Folie wird gelöscht |
+| ReadOnly-Öffnen | `WithWindow:=msoFalse` verhindert UI-Flash und verhindert versehentliche Bearbeitung der Quelldatei |
+| Gegenseitiger Ausschluss | `chkApplyAll` und `chkApplySelected` deaktivieren sich gegenseitig im Click-Handler |
+| `CleanUpUnusedMasters` | Rückwärts-Löschung verhindert Index-Verschiebung; prüft via `CustomLayout.Parent.Index` |
+| Mac-Dateiauswahl | InputBox statt AppleScriptTask (kein Deployment-Aufwand) |
+
+---
+
 ## [Schritt 7] – Agenda Wizard (2026-04-03)
 
 ### Neu
