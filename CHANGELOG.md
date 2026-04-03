@@ -4,6 +4,45 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 
 ---
 
+## [Schritt 13] – Shortcuts + SHORTCUTS.md (2026-04-03)
+
+### Neu
+
+- **`src/CustomUI/CustomUI.xml`**: `keytip`-Attribut auf alle 13 Infront-eigenen Buttons gesetzt – sowohl im Single-Tab-View als auch im Multi-Tab-View (TabView):
+
+  | Kürzel | Button-ID               | Feature              |
+  |--------|-------------------------|----------------------|
+  | `CR`   | CornerRadiusButton      | Eckenradius (px)     |
+  | `CP`   | ColorPickerButton       | Color Picker         |
+  | `FP`   | FormatPainterPlusButton | Format Painter+      |
+  | `GE`   | GapEqualizerButton      | Gap Equalizer        |
+  | `RB`   | InsertRedBoxButton      | Red Box (Outline)    |
+  | `RF`   | InsertFilledRedBoxButton| Red Box (Filled)     |
+  | `RX`   | RemoveRedBoxesButton    | Red Boxes entfernen  |
+  | `AW`   | AgendaWizardButton      | Agenda Wizard        |
+  | `MI`   | MasterImportButton      | Master importieren   |
+  | `US`   | InsertUserStampButton   | Stempel setzen       |
+  | `UX`   | RemoveUserStampsButton  | Stempel entfernen    |
+  | `BC`   | BrandCheckButton        | Brand Check          |
+  | `FR`   | FindReplaceButton       | Find & Replace+      |
+
+- **`SHORTCUTS.md`**: Neue Datei mit:
+  - Erklärung warum `Application.OnKey` in PPT VBA nicht verfügbar ist
+  - Alt-KeyTip-Tabelle mit allen 13 Kürzeln
+  - QAT-Anleitung (Strg+1…9 / ⌘+1…9 auf Mac) mit empfohlener Belegung
+  - Mac-spezifischer Hinweis (keine KeyTips, QAT verwenden)
+  - Feature-Übersicht aller Schritte 1–13
+
+### Technische Entscheidungen
+
+| Thema | Entscheidung |
+|---|---|
+| Keine `Application.OnKey` | In PPT VBA nicht vorhanden (nur Word/Excel) → keytips als einzige XML-seitige Lösung |
+| Zwei-Buchstaben-Kürzel | Vermeiden Kollisionen mit einbuchstabigen Office-Standard-KeyTips |
+| QAT als primärer Weg für Mac | macOS PowerPoint zeigt keine KeyTips an |
+
+---
+
 ## [Schritt 12] – Bug Fixing + TESTING.md (2026-04-03)
 
 ### Bugfixes
