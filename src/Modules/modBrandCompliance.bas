@@ -452,8 +452,8 @@ End Function
 Private Function IniUnescape(value As String) As String
     Dim safeValue As String
     safeValue = value
-    safeValue = Replace(safeValue, "\;", ";")
     safeValue = Replace(safeValue, "\\", "\")
+    safeValue = Replace(safeValue, "\;", ";")
     IniUnescape = safeValue
 End Function
 

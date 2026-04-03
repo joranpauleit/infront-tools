@@ -410,6 +410,10 @@ Private Function BuildAppleScriptParam(emailSubject As String, emailAttachment A
     safeSubject = Replace(emailSubject, ";", ",")
     safeSubject = Replace(safeSubject, vbCr, " ")
     safeSubject = Replace(safeSubject, vbLf, " ")
+    safeSubject = Trim(safeSubject)
+    If Len(safeSubject) = 0 Then
+        safeSubject = "(no subject)"
+    End If
     If InStr(emailAttachment, ";") > 0 Or InStr(emailAttachment, vbCr) > 0 Or InStr(emailAttachment, vbLf) > 0 Then
         BuildAppleScriptParam = ""
         Exit Function

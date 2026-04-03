@@ -281,7 +281,6 @@ Public Function SanitizeFilename(filename As String) As String
     r = Replace(r, vbLf, "")
     Do While Len(r) > 0 And (Right$(r, 1) = "." Or Right$(r, 1) = " ")
         r = Left$(r, Len(r) - 1)
-        If Len(r) = 0 Then Exit Do
     Loop
     SanitizeFilename = Trim(r)
 End Function
