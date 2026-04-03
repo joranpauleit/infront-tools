@@ -6,3 +6,7 @@ src/~$*
 .c*
 build-tools*
 *sync.ffs_db*
+node_modules/
+dist/
+*.pem
+.env

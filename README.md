@@ -1,72 +1,164 @@
+# Infront Toolkit
 
-![Alt text](img/logo-instrumenta-2026.png?raw=true "Instrumenta Powerpoint Toolbar")
-# Instrumenta Powerpoint Toolbar
+Professionelles PowerPoint Add-in für Strategieberater — entwickelt für **PowerPoint auf dem Mac**.
 
-Many strategy consultancy firms have proprietary Powerpoint add-ins that provide access to often used tools and features that help to quickly fine tune a powerpoint presentation. After spending 10 years in strategy consulting and joining 'the industry' myself, I was looking for an alternative for the add-ins I was used to. Although lots of commercial options are available, I could not find a free and open source alternative. 
+Technologie: Office.js · React · TypeScript · Webpack
 
-As a spare time project in times of COVID-19, I decided to create Instrumenta as a free and open source consulting powerpoint toolbar. The ultimate goal is to create a feature rich toolbar that is compatible with both Windows and Mac versions of Microsoft Office. MIT-licensed, and use at your own risk. If you use the code to create your own toolbar —whether it’s for free or commercial purposes— it would be appreciated if you let me know and provide proper attribution in accordance with the MIT license requirements.
+---
 
-[@iappyx]( https://github.com/iappyx )
+## Voraussetzungen
 
+- Node.js ≥ 18
+- npm ≥ 9
+- PowerPoint für Mac (Microsoft 365, Version ≥ 16.70 empfohlen)
+- macOS 12 oder neuer
 
-![Alt text](img/instrumenta-win-1.30.png?raw=true "Instrumenta Powerpoint Toolbar (Windows)")
+---
 
-![Alt text](img/instrumenta-win-1.44.png?raw=true "Instrumenta Powerpoint Toolbar (Windows)")
+## Setup
 
+```bash
+# Abhängigkeiten installieren
+npm install
+```
 
-# Features
-Instrumenta has 270+ features, current features include:
-| Group | Feature |
-|-|-|
-| Generic | - Basic formatting and shortcuts to different frequently used powerpoint functions |
-| Text | - Increase/decrease/remove line spacing<br>- Increase/decrease/remove paragraph spacing<br>- Increase/decrease/remove bullet gap<br>- Remove text from shape<br>- Remove hyperlinks from shape<br>- Set or toggle autofit <br>- Remove formatting<br>- Swap text<br>- Remove strikethrough text<br>- Insert special characters<br>- Ticks and crosses<br>- Replace fonts<br>- Color bold text<br>- Set proofing language for all slides <br>- Split text into multiple shapes <br>- Copy or move selected text to new shape/table<br>- Merge text from multiple shapes into one shape <br>- Master stylesheets with Heading 1–3, Paragraph, Quote, and five custom shape/text styles you can apply across your slides |
-| Shapes | - Group shapes by row/column<br>- Select shapes by fill and/or line color<br>- Select shapes by width and/or height<br>- Select shapes by type of shape<br>- Swap position of two shapes<br>- Copy rounded corners of shapes to selected shapes<br>- Copy shapetype and all adjustments of shapes to selected shapes<br>- Rectify lines<br>- Clone shapes to right/down<br>- Copy/paste position and dimensions of shapes (across slides)<br>- Copy shape to multiple slides (multislide shape)<br>- Update position and dimensions of selected multislide shape on all slides<br>- Delete selected multislide shape on all slides<br>- Crop shape to slide<br>- Connect sides of two rectangles <br>- Increase shape transparency <br>- Toggle lock aspect ratio of shapes <br>- Resize and space elements evenly (horizontally and vertically)|
-| Pictures | - Apply same crop to selected pictures <br>- Crop picture to slide |
-| Align, distribute and size | - Align, distribute and size shapes<br>- Align objects over table cells, rows or columns <br>- Arrange shapes <br>- Set same height and/or width for shapes<br>- Size shapes to tallest, shortest, widest or narrowest<br>- Remove, increase or decrease horizontal/vertical gap between shapes<br>- Remove, increase or decrease margins for shapes<br>- Remove, increase or decrease margins for tables or selected cells <br>- Stretch objects to top, left, right or bottom<br>- Stretch objects to top edge, left edge, right edge or bottom edge  |
-| Table | - Format table<br>- Quick format table (preset)<br>- Optimize table height while preserving width<br>- Move rows and columns within a table<br>- Add, delete, increase or decrease column/row gaps <br>- Distribute columns/rows while ignoring column/row gaps <br>- Convert table to shapes<br>- Convert shapes to Table<br>- Transpose table<br>- Insert column preserving other column widths<br>- Split table by row / column<br>- Sum columns in table (all values above selected cells)<br>- Sum rows in table (all values left from selected cells) |
-| Export | - Save selected slides as new file<br>- E-mail selected slides (as PDF or PPT)<br>- Copy storyline to clipboard<br>- Export storyline to Word<br>- Paste storyline in shape<br>- Copy slide notes to clipboard<br>- Export slide notes to Word|
-| Paste and insert | - Insert slide from slide library<br>- Copy selected slides to slide library<br>- Harvey Balls<br>- Traffic lights (RAG status)<br>- Legend<br>- Star rating (0-5)<br>- Average Harvey Balls, Traffic lights and star ratings based on selected<br>- Numbered captions to shapes (including tables and images)<br>- Renumber captions across slides<br>- Sticky notes<br>- Move sticky notes on and off this slide/all slides<br>- Remove sticky notes from this slide/all slides<br>- Convert comments to sticky notes<br>- Steps counter (per slide and cross-slides)<br>- Agenda pages<br>- Stamps<br>- Move stamps on and off this slide/all slides<br>- Remove stamps from this slide/all slides<br>- Insert process (SmartArt) <br>- Insert Emoji <br>- Insert QR-code|
-| Advanced | - Mail merge a specific slide based on Excel-file<br>- Mail merge full presentation based on Excel-file (creating seperate presentations)<br>- Manually replace all merge fields on all slides (can be used for templates)<br>- Move selected slides to end and hide<br>- Remove all hidden slides<br>- Remove animations from all/selected slides<br>- Remove slide entry transitions from all/selected slides<br>- Remove speaker notes from all/selected slides<br>- Remove comments from all/selected slides<br>- Remove all unused master slides<br>- Convert all/selected slides to pictures (readonly)<br>- Watermark and convert all/selected slides to pictures (readonly)<br>- Anonymize all/selected slides with Lorem Ipsum<br>- Add (hidden) tags to slides and shapes<br>- Manage (hidden) tags of slides and shapes<br>- Select sliderange based on tags<br>- Select sliderange based on specific stamps on those slide<br>- Lock and unlock position of objects on slide<br>- Replace colors in all/selected slides<br>- Replace colors in selected shapes<br>- Slide grader (automated quality checks with quick fixes)<br>- Pyramid storyline builder (incl. Situation, Complication, Key Question)<br>- Instrumenta Script Editor (see: [SCRIPT.md](SCRIPT.md))<br>- Run custom Instrumenta scripts from the Ribbon<br>- Check for new versions of Instrumenta in the About-dialog <br>- Find Instrumenta features<br>- Change Instrumenta settings |
+### Icons einrichten
 
-# Platform support
-All functions tested in Windows on the latest Office at that moment in time.
+Das Manifest referenziert Icons unter `assets/icons/`. Folgende Dateien müssen vorhanden sein:
 
-The add in will work in OS X, with some minor issues:
-* Some icons are not the same as in the Windows-version. Microsoft Office does not support all icons from Windows on the Mac platform.
-* *Lock and unlock position of objects on slide* is not supported. This method is not (yet) implemented in VBA for Powerpoint on Mac. However, shapes that have been 'locked' in Windows will be shown as 'locked' on Mac as well.
-* *Export to E-mail (as PPT or PDF)*, *Export storyline to Word* and *Export slide notes to Word* are supported but require installation of an AppleScript-file due to OS X sandbox. See installation instructions below.
+```
+assets/icons/icon-16.png   (16×16 px)
+assets/icons/icon-32.png   (32×32 px)
+assets/icons/icon-80.png   (80×80 px)
+```
 
-As stated in the license: THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Platzhalter-Icons können aus `src/CustomUI/icons/png/` kopiert und skaliert werden.
 
-# Feature requests and contributions
-I am happy to receive feature requests and code contributions! Let's make the best toolbar together. For feature requests please create new issue and label it as an enhancement (https://github.com/iappyx/Instrumenta/issues/new/choose). 
+---
 
-If you want to contribute, please make sure that the code can be freely used as open source code. 
-Please only update the files in /src/Modules, /src/Forms, /src/CustomUi and /src/Classes. For security reasons I will not accept updated .pptm or .ppam files.
+## Entwicklung
 
-If you like this plugin, please let me and the community know how you are using this in your daily work: https://github.com/iappyx/Instrumenta/discussions/5
+### Dev-Server starten
 
-# Keyboard shortcuts
-Due to limitations in VBA, Instrumenta does not support keyboard shortcuts out-of-the-box. PowerPoint does not provide built-in functionality for assigning shortcuts to macros.
-I have been working on a keyboard shortcut companion called [Instrumenta Keys](https://github.com/iappyx/Instrumenta-Keys). 
-It works on both Windows and Mac, but is highly experimental.
+```bash
+npm run dev-server
+```
 
-You can try Instrumenta Keys, or assign functions to the Quick Access Toolbar instead and use pre-defined shortcuts for these, see [#37](https://github.com/iappyx/Instrumenta/issues/37).
+Der webpack-dev-server läuft auf `https://localhost:3000`.
 
-# Instrumenta Script
-The Instrumenta Script Language is a simple scripting language built into Instrumenta that lets you automate and batch-manipulate shapes in PowerPoint. Instead of clicking through menus repeatedly, you write a short script and run it with a single click. For more information see the [documentation](SCRIPT.md).
+**HTTPS-Zertifikat vertrauen (einmalig, Mac):**
 
-# How to install 
-See installation instructions [here](INSTALL.md).
+```bash
+# Browser öffnen und Zertifikat akzeptieren
+open "https://localhost:3000"
+# Im Safari/Chrome-Dialog "Vertrauen" wählen
+# Oder über: Systemeinstellungen → Datenschutz & Sicherheit → Zertifikate
+```
 
-# How to build from source
-Creating your own build is very simple, all coding is done in PowerPoint.
+### Add-in in PowerPoint laden (Sideload)
 
-- Open "InstrumentaPowerpointToolbar.pptm" from the "src" directory in PowerPoint
-- Through PowerPoint settings, enable the "Developer" tab in the PowerPoint ribbon.
-- All coding is done in the Visual Basic Editor (VBA IDE) of PowerPoint, the .bas-files in the "src" directory are there for reference only. I export them after every build.
-- You can use the pptm-file and update or create your own and copy-paste the code
-- To customize the Ribbon you can use [https://github.com/fernandreu/office-ribbonx-editor](https://github.com/fernandreu/office-ribbonx-editor) on the pptm-file.
-- In PowerPoint, save the file as a "PowerPoint Add-in (*.ppam)" file to create your own build
+1. PowerPoint öffnen
+2. Menü: **Einfügen → Add-ins → Meine Add-ins → Add-in hochladen**
+3. `manifest.xml` aus dem Repository-Root auswählen
+4. Der Tab **Infront Toolkit** erscheint im Ribbon
 
-The code for the installers can be found in `/src/Installers/`. For Windows this is a NSIS-script and for Mac the installer can be built with `build.sh`.
+---
+
+## Build
+
+```bash
+# Production Build (in /dist)
+npm run build
+
+# Development Build (mit Source Maps)
+npm run build:dev
+```
+
+Output liegt in `dist/`. Für die Produktion werden `dist/` + `manifest.xml` benötigt.
+
+---
+
+## Typecheck & Lint
+
+```bash
+npm run typecheck   # TypeScript prüfen ohne Build
+npm run lint        # ESLint ausführen
+```
+
+---
+
+## Projektstruktur
+
+```
+infront-tools/
+├── manifest.xml              # Office Add-in Manifest
+├── package.json
+├── tsconfig.json
+├── webpack.config.js
+├── assets/icons/             # Add-in Icons (PNG, mind. 16/32/80 px)
+├── config/
+│   └── Infront_BrandConfig.json   # Brand Compliance Konfiguration
+├── src/
+│   ├── commands/             # ExecuteFunction-Ribbon-Handler
+│   │   ├── commands.html
+│   │   └── commands.ts
+│   ├── taskpane/             # React Task Pane App
+│   │   ├── index.html
+│   │   ├── index.tsx
+│   │   ├── App.tsx           # Root + URL-Router
+│   │   ├── App.css
+│   │   └── components/       # Feature-Panel-Komponenten
+│   │       ├── shared/       # Gemeinsame UI-Komponenten
+│   │       ├── CornerRadius/
+│   │       ├── ColorPicker/
+│   │       ├── BrandCheck/
+│   │       ├── FormatPainter/
+│   │       ├── FindReplace/
+│   │       ├── GapEqualizer/
+│   │       ├── Agenda/
+│   │       ├── MasterImport/
+│   │       ├── Review/
+│   │       └── RedBox/
+│   ├── services/
+│   │   ├── powerpoint/       # Office.js Service-Layer
+│   │   ├── config/           # Konfiguration
+│   │   └── state/            # Session-State / Undo-Fallback
+│   └── utils/                # Farb-, Geometrie-, Logger-Utilities
+├── README.md
+├── CHANGELOG.md
+├── TESTING.md
+└── SHORTCUTS.md
+```
+
+---
+
+## Ribbon-Struktur
+
+| Gruppe     | Button                                              | Typ          |
+|------------|-----------------------------------------------------|--------------|
+| Shapes     | Eckenradius                                         | Task Pane    |
+| Format     | Farbwähler, Format Painter+                         | Task Pane    |
+| Quality    | Brand Check, Suchen & Ersetzen, Kommentare entfernen, Red Box entfernen | Task Pane / Direkt |
+| Ausrichten | Gap H, Gap V, Gap...                                | Direkt / Task Pane |
+| Struktur   | Agenda                                              | Task Pane    |
+| Design     | Master importieren, Red Box, Red Box: Alle Slides, Red Box Einstellungen | Task Pane / Direkt |
+| Review     | Kommentar, Markieren, Meine Kommentare             | Task Pane / Direkt |
+
+---
+
+## Bekannte Einschränkungen (Mac / Office.js)
+
+Vollständige Liste: [TESTING.md](TESTING.md)
+
+| Einschränkung | Grund | Fallback |
+|---|---|---|
+| Screen-Pixel-Picker | WebKit/Safari unterstützt EyeDropper API nicht | Hex-Eingabe + Shape-Farbübernahme |
+| Master vollständig ersetzen | Kein SlideMaster-Replacement in Office.js | Theme-Farben/-Fonts anpassen |
+| Natives Undo | Kein `Application.Undo()` in Office.js | Session-Snapshot + Revert-Button |
+| Globale Shortcuts | Office Add-ins können keine globalen Shortcuts registrieren | Ribbon-Buttons als Primärpfad |
+
+---
+
+## Legacy-Referenz
+
+`src/Modules/`, `src/Forms/`, `src/Classes/`, `bin/`, `v/` enthalten den ursprünglichen VBA-Code (Instrumenta). Diese Dateien sind **keine aktive Codebasis** und dienen nur als Feature-Referenz.

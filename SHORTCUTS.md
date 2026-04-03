@@ -1,96 +1,79 @@
 # Infront Toolkit – Tastaturkürzel
 
-PowerPoint VBA bietet keine `Application.OnKey`-API (nur Word/Excel).
-Direkte Hotkeys wie `Ctrl+Shift+X` sind daher **nicht programmatisch zuzuweisen**.
-
-Stattdessen stehen zwei Wege zur Verfügung:
+Dokumentation der verfügbaren Tastaturpfade für das Infront Toolkit auf dem Mac.
 
 ---
 
-## 1. Alt-Tasten-Navigation (KeyTips)
+## Wichtige Einschränkung
 
-Alle Infront-eigenen Schaltflächen sind mit `keytip`-Attributen versehen.
-Nach Drücken von **Alt** erscheinen die Buchstaben-Kürzel im Ribbon.
+**Office Add-ins können auf dem Mac keine globalen Tastaturkürzel für PowerPoint registrieren.**
 
-### Tastenfolge (Beispiel Single-Tab-View)
+- Es gibt keine API in Office.js für `Application.OnKey` (VBA-Äquivalent)
+- Shortcuts können nur innerhalb der Task Pane (wenn aktiv und fokussiert) genutzt werden
+- Ribbon-Buttons sind der primäre Zugangspfad für alle Features
 
-```
-Alt  →  [Tab-Kürzel]  →  [Button-Kürzel]
-```
-
-Der Tab-Buchstabe hängt von der Office-Version und Installationsreihenfolge ab.
-Sobald der Tab aktiv ist, gelten die folgenden Button-Kürzel:
-
-| Kürzel | Feature                  | Gruppe     |
-|--------|--------------------------|------------|
-| `CR`   | Eckenradius (px)         | Format     |
-| `CP`   | Color Picker             | Format     |
-| `FP`   | Format Painter+          | Format     |
-| `GE`   | Gap Equalizer            | Align      |
-| `RB`   | Red Box (Outline)        | Design     |
-| `RF`   | Red Box (Filled)         | Design     |
-| `RX`   | Red Boxes entfernen      | Design     |
-| `AW`   | Agenda Wizard            | Slides     |
-| `MI`   | Master importieren       | Slides     |
-| `US`   | Stempel setzen           | Review     |
-| `UX`   | Stempel entfernen        | Review     |
-| `BC`   | Brand Check              | Quality    |
-| `FR`   | Find & Replace+          | Advanced   |
-
-Dieselben Kürzel gelten im Multi-Tab-View (TabView-Buttons).
+Status in TESTING.md dokumentiert: Kategorie C – aktuell nicht robust umsetzbar.
 
 ---
 
-## 2. Quick Access Toolbar (QAT) – Strg+1 … Strg+9
+## Primärer Zugangspfad: Ribbon
 
-Für häufig genutzte Funktionen empfiehlt sich die **Schnellzugriffsleiste**:
+Alle Features sind über den **Infront Toolkit** Ribbon-Tab erreichbar:
 
-1. Rechtsklick auf einen Infront-Button → **"Zur Schnellzugriffsleiste hinzufügen"**
-2. Die ersten 9 Einträge in der QAT sind über `Strg+1` … `Strg+9` erreichbar.
-
-Empfohlene Belegung:
-
-| Taste    | Feature             |
-|----------|---------------------|
-| `Strg+1` | Find & Replace+     |
-| `Strg+2` | Format Painter+     |
-| `Strg+3` | Color Picker        |
-| `Strg+4` | Brand Check         |
-| `Strg+5` | Gap Equalizer       |
-| `Strg+6` | Red Box (Outline)   |
-| `Strg+7` | Agenda Wizard       |
-| `Strg+8` | Stempel setzen      |
-| `Strg+9` | Master importieren  |
-
-Die QAT-Reihenfolge lässt sich unter
-**Datei → Optionen → Symbolleiste für den Schnellzugriff** anpassen.
-
----
-
-## 3. Mac-Hinweis
-
-Auf macOS zeigt PowerPoint keine KeyTips an (Alt-Taste hat andere Belegung).
-Für Mac-Nutzer ist die QAT der einzige Weg zu echten Tastaturkürzeln:
-
-- QAT-Einträge 1–9 werden mit **⌘+1** … **⌘+9** aufgerufen
-- Alternative: Ribbon-Suche über **⌘+/** (Office 365 Mac ab Version 16.x)
+| Feature | Gruppe | Schritt |
+|---|---|---|
+| Eckenradius | Shapes | 4 |
+| Farbwähler | Format | 5 |
+| Format Painter+ | Format | 7 |
+| Brand Check | Quality | 6 |
+| Suchen & Ersetzen | Quality | 8 |
+| Kommentare entfernen | Quality | 11 |
+| Red Box entfernen | Quality | 13 |
+| Gap H | Ausrichten | 12 |
+| Gap V | Ausrichten | 12 |
+| Gap... | Ausrichten | 12 |
+| Agenda | Struktur | 9 |
+| Master importieren | Design | 10 |
+| Red Box | Design | 13 |
+| Red Box: Alle Slides | Design | 13 |
+| Red Box Einstellungen | Design | 13 |
+| Kommentar | Review | 11 |
+| Markieren | Review | 11 |
+| Meine Kommentare | Review | 11 |
 
 ---
 
-## Feature-Übersicht (Schritte 1–13)
+## Task-Pane-interne Shortcuts
 
-| Schritt | Feature                        | Modul / Form                         |
-|---------|--------------------------------|--------------------------------------|
-| 1       | Rebranding (Infront)           | CustomUI.xml, modSettings, …         |
-| 2       | Eckenradius in Pixeln          | modCornerRadius                      |
-| 3       | Screen Color Picker            | modColorPicker, frmColorPicker       |
-| 4       | Brand Compliance Checker       | modBrandCompliance, frmBrandCompliance|
-| 5       | Format Painter Plus            | modFormatPainterPlus, frmFormatPainterPlus |
-| 6       | Global Find & Replace          | modFindReplace, frmFindReplace       |
-| 7       | Agenda Wizard                  | modAgendaWizard, frmAgendaWizard     |
-| 8       | Master-Importer                | modMasterImport, frmMasterImport     |
-| 9       | User-Name-Stempel              | modUserStamp                         |
-| 10      | Smart Gap Equalizer            | modGapEqualizer, frmGapEqualizer     |
-| 11      | Red Box                        | modRedBox                            |
-| 12      | Bug-Fixes & TESTING.md         | (diverse), TESTING.md                |
-| 13      | Shortcuts & SHORTCUTS.md       | CustomUI.xml (keytips), SHORTCUTS.md |
+Wenn die Task Pane geöffnet und fokussiert ist, reagiert sie auf Standard-Browser-Shortcuts:
+
+| Shortcut (Mac) | Funktion |
+|---|---|
+| `Tab` / `Shift+Tab` | Zwischen Bedienelementen wechseln |
+| `Return` / `Space` | Aktuellen Button aktivieren |
+| `Escape` | Dropdown/Dialog schließen |
+| `⌘+A` | Text in Eingabefeld alles auswählen |
+| `⌘+C` / `⌘+V` | Kopieren/Einfügen in Eingabefeldern |
+
+---
+
+## Keyboard Access via Mac Accessibility
+
+Als Workaround für schnellen Ribbon-Zugriff auf dem Mac:
+
+1. **Vollzugriff aktivieren**: Systemeinstellungen → Bedienungshilfen → Tastatur → Vollzugriff aktivieren
+2. Mit `F6` / `Ctrl+F6` zwischen Ribbon, Task Pane und Presentation wechseln
+3. Im Ribbon: mit Pfeiltasten und `Return` navigieren
+
+---
+
+## Geplant (Schritt 15)
+
+Schritt 15 analysiert welche weiteren Tastaturpfade innerhalb der Office Add-in Architektur realistisch umsetzbar sind und dokumentiert diese vollständig.
+
+| Implementierungsform | Realistisch auf Mac |
+|---|---|
+| Globale PowerPoint-Shortcuts | Nein (keine API) |
+| Add-in-Keyboard-Shortcuts (VersionOverrides) | Begrenzt (nur Outlook unterstützt KeyboardShortcuts vollständig) |
+| Task-Pane-interne Shortcuts | Ja (Standard-Web-Shortcuts) |
+| Ribbon-KeyTip-Navigation | Ja (über Accessibility-Modus) |
