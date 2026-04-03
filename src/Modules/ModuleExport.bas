@@ -414,6 +414,7 @@ Private Function BuildAppleScriptParam(emailSubject As String, emailAttachment A
     If Len(safeSubject) = 0 Then
         safeSubject = "(no subject)"
     End If
+    ' AppleScript plugin expects "subject;path". Semicolons/newlines would break parsing.
     If InStr(emailAttachment, ";") > 0 Or InStr(emailAttachment, vbCr) > 0 Or InStr(emailAttachment, vbLf) > 0 Then
         BuildAppleScriptParam = ""
         Exit Function

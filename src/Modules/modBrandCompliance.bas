@@ -450,11 +450,28 @@ Private Function IniEscape(value As String) As String
 End Function
 
 Private Function IniUnescape(value As String) As String
-    Dim safeValue As String
-    safeValue = value
-    safeValue = Replace(safeValue, "\\", "\")
-    safeValue = Replace(safeValue, "\;", ";")
-    IniUnescape = safeValue
+    Dim result As String
+    Dim i As Long
+    Dim ch As String
+    Dim nextCh As String
+
+    i = 1
+    Do While i <= Len(value)
+        ch = Mid$(value, i, 1)
+        If ch = "\" And i < Len(value) Then
+            nextCh = Mid$(value, i + 1, 1)
+            If nextCh = "\" Or nextCh = ";" Then
+                result = result & nextCh
+                i = i + 2
+                GoTo ContinueLoop
+            End If
+        End If
+        result = result & ch
+        i = i + 1
+ContinueLoop:
+    Loop
+
+    IniUnescape = result
 End Function
 
 
