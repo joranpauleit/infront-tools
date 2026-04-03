@@ -2,7 +2,7 @@
 <customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui" onLoad="InstrumentaInitialize">
    <ribbon>
       <tabs>
-         <tab id="InstrumentaPowerpointToolbar" label="Instrumenta" getVisible="InstrumentaGetVisibleOneTabView">
+         <tab id="InstrumentaPowerpointToolbar" label="Infront" getVisible="InstrumentaGetVisibleOneTabView">
             <group id="FormattingFont" label="Font" tag="PR" getVisible="InstrumentaGetVisible">
                <box id="FontBox1" boxStyle="horizontal">
                   <control idMso="Font"/>
@@ -167,6 +167,7 @@
                   </menu>
                </splitButton>
                <control idMso="FormatPainter" showLabel="false"/>
+               <button id="CornerRadiusButton" label="Eckenradius (px)" showLabel="false" imageMso="ShapeRoundedRectangle" onAction="SetCornerRadiusPx" getEnabled="EnableWhenShapesSelected" screentip="Eckenradius setzen" supertip="Setzt den Eckenradius der ausgewählten Shapes anhand eines Pixelwerts. Nicht unterstützte Shapes werden automatisch übersprungen." keytip="CR"/>
                <button id="ObjectsCopyRoundedCorner" label="Copy rounded corner of first selected shape to selected shapes" showLabel="false" imageMso="ShapeRoundedRectangle" onAction="ObjectsCopyRoundedCorner" getEnabled="EnableWhenMultipleShapesSelected" supertip="Copies the rounded corner radius from the first selected shape to the other selected shapes" screentip="Copy Rounded Corner"/>
                <button id="ObjectsCopyShapeTypeAndAdjustments" label="Copy shape type and all adjustments of first selected shape to selected shapes" showLabel="false" imageMso="OutlineTasksShowAll" onAction="ObjectsCopyShapeTypeAndAdjustments" getEnabled="EnableWhenMultipleShapesSelected" supertip="Copies the shape type and all adjustment values from the first selected shape to the other selected shapes" screentip="Copy Shape Type and Adjustments"/>
                <toggleButton idMso="ObjectEditPoints" showLabel="false"/>
@@ -222,6 +223,10 @@
                <button id="RemoveMargins" label="Remove margins" showLabel="false" imageMso="PageMarginsGallery" onAction="ObjectsMarginsToZero" getEnabled="EnableWhenShapeOrText" supertip="Removes the margins of the selected shapes" screentip="Remove Margins"/>
                <button id="IncreaseMargins" label="Increase margins" showLabel="false" imageMso="UpArrow2" onAction="ObjectsMarginsIncrease" getEnabled="EnableWhenShapeOrText" supertip="Increases the margins of the selected shapes" screentip="Increase Margins"/>
                <button id="DecreaseMargins" label="Decrease margins" showLabel="false" imageMso="DownArrow2" onAction="ObjectsMarginsDecrease" getEnabled="EnableWhenShapeOrText" supertip="Decreases the margins of the selected shapes" screentip="Decrease Margins"/>
+            </group>
+            <group id="InfrontFormatGroup" label="Format" imageMso="FormatPainter" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="ColorPickerButton" label="Color Picker" imageMso="ShapeFillColorPicker" onAction="ShowColorPicker" getEnabled="EnableWhenShapesSelected" screentip="Color Picker" supertip="Nimmt eine Farbe vom Bildschirm auf (Windows) oder öffnet den macOS Farbauswahl-Dialog (Mac) und ermöglicht das Anwenden auf Füll-, Linien- oder Schriftfarbe der selektierten Shapes." keytip="CP"/>
+               <button id="FormatPainterPlusButton" label="Format Painter+" imageMso="FormatPainter" onAction="ShowFormatPainterPlus" getEnabled="EnableWhenExactlyOneShape" screentip="Format Painter+" supertip="Kopiert alle Formateigenschaften (Füllung, Linie, Schrift, Ausrichtung, Größe) von einem Quell-Shape und wendet selektierte Eigenschaften auf mehrere Ziel-Shapes an." keytip="FP"/>
             </group>
             <group id="PictureGroup" label="Pictures" imageMso="PictureRecolorAutomatic" tag="P" getVisible="InstrumentaGetVisible">
                <splitButton id="PictureCropSplitButton" size="normal" showLabel="false">
@@ -299,6 +304,7 @@
                </splitButton>
                <button id="ObjectsIncreaseSpacingVertical" imageMso="VerticalSpacingIncrease" label="Increase vertical gap between shapes" showLabel="false" onAction="ObjectsIncreaseSpacingVertical" getEnabled="EnableWhenMultipleShapesSelected" supertip="Increases the vertical gap between the selected shapes" screentip="Increase Vertical Gap"/>
                <button id="ObjectsDecreaseSpacingVertical" imageMso="VerticalSpacingDecrease" label="Decrease vertical gap between shapes" showLabel="false" onAction="ObjectsDecreaseSpacingVertical" getEnabled="EnableWhenMultipleShapesSelected" supertip="Decreases the vertical gap between the selected shapes" screentip="Decrease Vertical Gap"/>
+               <button id="GapEqualizerButton" label="Gap Equalizer" imageMso="DistributeHorizontally" onAction="ShowGapEqualizer" getEnabled="EnableWhenMultipleShapesSelected" screentip="Smart Gap Equalizer" supertip="Setzt exakte Abstände zwischen Shapes. Unterstützt Custom-Wert (pt), Durchschnitt, Min und Max des aktuellen Abstands. Horizontal und/oder vertikal." showLabel="false" keytip="GE"/>
                <separator id="separatorTableAlign"/>
                <button id="ObjectsArrangeShapesButton" imageMso="SlidesPerPage9Slides" label="Arrange shapes" showLabel="false" onAction="ArrangeShapes" getEnabled="EnableWhenMultipleShapesSelected" supertip="Arranges the selected shapes into a structured layout" screentip="Arrange Shapes"/>
                <splitButton id="TableAlignSplitButton" size="normal" showLabel="false">
@@ -319,6 +325,15 @@
                   <button id="ObjectsStretchTopShapeBottom" label="Stretch shapes to the bottom edge of the topmost shape" onAction="ObjectsStretchTopShapeBottom" getEnabled="EnableWhenMultipleShapesSelected" supertip="Stretches the selected shapes to the bottom edge of the topmost shape" screentip="Stretch to Topmost Shape"/>
                   <button id="ObjectsStretchBottomShapeTop" label="Stretch shapes to the top edge of the bottommost shape" onAction="ObjectsStretchBottomShapeTop" getEnabled="EnableWhenMultipleShapesSelected" supertip="Stretches the selected shapes to the top edge of the bottommost shape" screentip="Stretch to Bottommost Shape"/>
                </menu>
+            </group>
+            <group id="InfrontDesignGroup" label="Design" imageMso="ShapesMoreShapes" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="InsertRedBoxButton" label="Red Box" imageMso="BorderColorPicker" onAction="InsertRedBox" screentip="Red Box (Outline)" supertip="Fügt einen roten Hervorhebungsrahmen ein. Shapes selektiert → umrahmt die Selektion; sonst → Folienmitte." showLabel="false" keytip="RB"/>
+               <button id="InsertFilledRedBoxButton" label="Red Box (Filled)" imageMso="ShapeFillColorPicker" onAction="InsertFilledRedBox" screentip="Red Box (Filled)" supertip="Fügt eine halbtransparente rote Hervorhebungsfläche ein (80% transparent). Shapes selektiert → über Selektion; sonst → Folienmitte." showLabel="false" keytip="RF"/>
+               <button id="RemoveRedBoxesButton" label="Red Boxes entfernen" imageMso="BorderNone" onAction="RemoveRedBoxes" screentip="Red Boxes entfernen" supertip="Entfernt alle Red Boxes (InfrontRedBox) von der aktuellen Folie." showLabel="false" keytip="RX"/>
+            </group>
+            <group id="InfrontSlidesGroup" label="Slides" imageMso="SlideMasterInsertLayout" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="AgendaWizardButton" label="Agenda Wizard" imageMso="TableOfContentsInsert" onAction="ShowAgendaWizard" screentip="Agenda Wizard" supertip="Erstellt Übersichts- und optionale Fortschrittsfolien aus einer Themen-Liste. Agenda-Folien werden mit einem internen Tag markiert und können jederzeit gelöscht und neu generiert werden." keytip="AW"/>
+               <button id="MasterImportButton" label="Master importieren" imageMso="SlideMasterView" onAction="ShowMasterImport" screentip="Master importieren" supertip="Importiert einen Slide-Master aus einer externen Präsentation (.pptx/.pptm/.ppam/.potx) in die aktive Präsentation. Optional: Master auf alle / selektierte Folien anwenden und ungenutzte Masters entfernen." keytip="MI"/>
             </group>
             <group id="TableGroup" label="Tables" imageMso="TableInsert" tag="P" getVisible="InstrumentaGetVisible">
                <gallery idMso="TableInsertGallery" showLabel="false" label="&#x200B;"/>
@@ -594,9 +609,17 @@
                <dropDown id="InstrumentaScriptPresets" label="Preset" screentip="Select a saved script preset" showLabel="false" getItemCount="ScriptPreset_GetItemCount" getItemLabel="ScriptPreset_GetItemLabel" getItemID="ScriptPreset_GetItemID" onAction="ScriptPreset_OnAction"/>
                <button id="InstrumentaScriptPresetRun" label="Run preset" screentip="Run the selected preset" imageMso="MacroPlay" showLabel="false" onAction="ScriptPreset_Run"/>
             </group>
+            <group id="InfrontReviewGroup" label="Review" imageMso="ReviewNewComment" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="InsertUserStampButton" label="Stempel setzen" imageMso="ReviewInsertComment" onAction="InsertUserStamp" screentip="User-Stempel setzen" supertip="Setzt einen Review-Stempel (Name + Datum/Zeit) auf die aktuelle, alle oder selektierte Folien. Der Stempel wird unten rechts als kleiner grauer Text eingefügt und kann jederzeit entfernt werden." keytip="US"/>
+               <button id="RemoveUserStampsButton" label="Stempel entfernen" imageMso="ReviewDeleteAllCommentsInDoc" onAction="RemoveUserStamps" screentip="User-Stempel entfernen" supertip="Entfernt alle User-Stempel (InfrontUserStamp) aus der gesamten Präsentation." keytip="UX"/>
+            </group>
+            <group id="InfrontQualityGroup" label="Quality" imageMso="ReviewTrackChanges" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="BrandCheckButton" label="Brand Check" imageMso="ReviewRejectAllChangesInDoc" onAction="ShowBrandCheck" screentip="Brand Check" supertip="Prüft die aktive Präsentation auf Einhaltung von Markenrichtlinien (Schriftarten, Farben, Schriftgrößen). Konfiguration über Infront_BrandConfig.ini im Add-in-Ordner." keytip="BC"/>
+            </group>
             <group id="AllGroup" label="Advanced" imageMso="AdvancedFileProperties" tag="PR" getVisible="InstrumentaGetVisible">
                <button idMso="FileNewDefault" showLabel="false"/>
                <button idMso="ReplaceDialog" showLabel="false"/>
+               <button id="FindReplaceButton" label="Find &amp; Replace+" imageMso="FindAndReplace" onAction="ShowFindReplace" screentip="Find &amp; Replace+" supertip="Sucht und ersetzt Text über alle, selektierte oder die aktuelle Folie. Mit Scope-Filter, Shape-Filter und optionalem Einschluss von Sprechernotizen. Zeichenformatierung (Fett, Kursiv usw.) bleibt erhalten." showLabel="false" keytip="FR"/>
                <button idMso="AdvancedFileProperties" imageMso="ChooseForm" showLabel="false"/>
                <menu id="CleaningMenu" label="Cleaning tools" imageMso="ClearMenu" showLabel="false" supertip="Opens the tools for cleaning and fixing common slide issues" screentip="Cleaning Tools">
                   <button id="cleaning0" label="Move to end and hide selected slides" imageMso="Clear" onAction="CleanUpHideAndMoveSelectedSlides" supertip="Moves the selected slides to the end of the presentation and hides them from the slideshow" screentip="Move and hide slides"/>
@@ -812,6 +835,7 @@
                   </menu>
                </splitButton>
                <control idMso="FormatPainter" showLabel="false"/>
+               <button id="TabViewCornerRadiusButton" label="Eckenradius (px)" showLabel="false" imageMso="ShapeRoundedRectangle" onAction="SetCornerRadiusPx" getEnabled="EnableWhenShapesSelected" screentip="Eckenradius setzen" supertip="Setzt den Eckenradius der ausgewählten Shapes anhand eines Pixelwerts. Nicht unterstützte Shapes werden automatisch übersprungen." keytip="CR"/>
                <button id="TabViewObjectsCopyRoundedCorner" label="Copy rounded corner of first selected shape to selected shapes" showLabel="false" imageMso="ShapeRoundedRectangle" onAction="ObjectsCopyRoundedCorner" getEnabled="EnableWhenMultipleShapesSelected" supertip="Copies the rounded corner radius from the first selected shape to the other selected shapes" screentip="Copy Rounded Corner"/>
                <button id="TabViewObjectsCopyShapeTypeAndAdjustments" label="Copy shape type and all adjustments of first selected shape to selected shapes" showLabel="false" imageMso="OutlineTasksShowAll" onAction="ObjectsCopyShapeTypeAndAdjustments" getEnabled="EnableWhenMultipleShapesSelected" supertip="Copies the shape type and all adjustment values from the first selected shape to the other selected shapes" screentip="Copy Shape Type and Adjustments"/>
                <toggleButton idMso="ObjectEditPoints" showLabel="false"/>
@@ -867,6 +891,10 @@
                <button id="TabViewRemoveMargins" label="Remove margins" showLabel="false" imageMso="PageMarginsGallery" onAction="ObjectsMarginsToZero" getEnabled="EnableWhenShapeOrText" supertip="Removes the margins of the selected shapes" screentip="Remove Margins"/>
                <button id="TabViewIncreaseMargins" label="Increase margins" showLabel="false" imageMso="UpArrow2" onAction="ObjectsMarginsIncrease" getEnabled="EnableWhenShapeOrText" supertip="Increases the margins of the selected shapes" screentip="Increase Margins"/>
                <button id="TabViewDecreaseMargins" label="Decrease margins" showLabel="false" imageMso="DownArrow2" onAction="ObjectsMarginsDecrease" getEnabled="EnableWhenShapeOrText" supertip="Decreases the margins of the selected shapes" screentip="Decrease Margins"/>
+            </group>
+            <group id="TabViewInfrontFormatGroup" label="Format" imageMso="FormatPainter" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="TabViewColorPickerButton" label="Color Picker" imageMso="ShapeFillColorPicker" onAction="ShowColorPicker" getEnabled="EnableWhenShapesSelected" screentip="Color Picker" supertip="Nimmt eine Farbe vom Bildschirm auf (Windows) oder öffnet den macOS Farbauswahl-Dialog (Mac) und ermöglicht das Anwenden auf Füll-, Linien- oder Schriftfarbe der selektierten Shapes." keytip="CP"/>
+               <button id="TabViewFormatPainterPlusButton" label="Format Painter+" imageMso="FormatPainter" onAction="ShowFormatPainterPlus" getEnabled="EnableWhenExactlyOneShape" screentip="Format Painter+" supertip="Kopiert alle Formateigenschaften (Füllung, Linie, Schrift, Ausrichtung, Größe) von einem Quell-Shape und wendet selektierte Eigenschaften auf mehrere Ziel-Shapes an." keytip="FP"/>
             </group>
             <group id="TabViewPictureGroup" label="Pictures" imageMso="PictureRecolorAutomatic" tag="P" getVisible="InstrumentaGetVisible">
                <splitButton id="TabViewPictureCropSplitButton" size="normal" showLabel="false">
@@ -944,6 +972,7 @@
                </splitButton>
                <button id="TabViewObjectsIncreaseSpacingVertical" imageMso="VerticalSpacingIncrease" label="Increase vertical gap between shapes" showLabel="false" onAction="ObjectsIncreaseSpacingVertical" getEnabled="EnableWhenMultipleShapesSelected" supertip="Increases the vertical gap between the selected shapes" screentip="Increase Vertical Gap"/>
                <button id="TabViewObjectsDecreaseSpacingVertical" imageMso="VerticalSpacingDecrease" label="Decrease vertical gap between shapes" showLabel="false" onAction="ObjectsDecreaseSpacingVertical" getEnabled="EnableWhenMultipleShapesSelected" supertip="Decreases the vertical gap between the selected shapes" screentip="Decrease Vertical Gap"/>
+               <button id="TabViewGapEqualizerButton" label="Gap Equalizer" imageMso="DistributeHorizontally" onAction="ShowGapEqualizer" getEnabled="EnableWhenMultipleShapesSelected" screentip="Smart Gap Equalizer" supertip="Setzt exakte Abstände zwischen Shapes. Unterstützt Custom-Wert (pt), Durchschnitt, Min und Max des aktuellen Abstands. Horizontal und/oder vertikal." showLabel="false" keytip="GE"/>
                <separator id="TabViewseparatorTableAlign"/>
                <button id="TabViewObjectsArrangeShapesButton" imageMso="SlidesPerPage9Slides" label="Arrange shapes" showLabel="false" onAction="ArrangeShapes" getEnabled="EnableWhenMultipleShapesSelected" supertip="Arranges the selected shapes into a structured layout" screentip="Arrange Shapes"/>
                <splitButton id="TabViewTableAlignSplitButton" size="normal" showLabel="false">
@@ -967,6 +996,15 @@
             </group>
          </tab>
          <tab id="TabViewInstrumentaTables" label="[Tables]" getVisible="InstrumentaGetVisibleMultiTabView">
+            <group id="TabViewInfrontDesignGroup" label="Design" imageMso="ShapesMoreShapes" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="TabViewInsertRedBoxButton" label="Red Box" imageMso="BorderColorPicker" onAction="InsertRedBox" screentip="Red Box (Outline)" supertip="Fügt einen roten Hervorhebungsrahmen ein. Shapes selektiert → umrahmt die Selektion; sonst → Folienmitte." showLabel="false" keytip="RB"/>
+               <button id="TabViewInsertFilledRedBoxButton" label="Red Box (Filled)" imageMso="ShapeFillColorPicker" onAction="InsertFilledRedBox" screentip="Red Box (Filled)" supertip="Fügt eine halbtransparente rote Hervorhebungsfläche ein (80% transparent). Shapes selektiert → über Selektion; sonst → Folienmitte." showLabel="false" keytip="RF"/>
+               <button id="TabViewRemoveRedBoxesButton" label="Red Boxes entfernen" imageMso="BorderNone" onAction="RemoveRedBoxes" screentip="Red Boxes entfernen" supertip="Entfernt alle Red Boxes (InfrontRedBox) von der aktuellen Folie." showLabel="false" keytip="RX"/>
+            </group>
+            <group id="TabViewInfrontSlidesGroup" label="Slides" imageMso="SlideMasterInsertLayout" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="TabViewAgendaWizardButton" label="Agenda Wizard" imageMso="TableOfContentsInsert" onAction="ShowAgendaWizard" screentip="Agenda Wizard" supertip="Erstellt Übersichts- und optionale Fortschrittsfolien aus einer Themen-Liste. Agenda-Folien werden mit einem internen Tag markiert und können jederzeit gelöscht und neu generiert werden." keytip="AW"/>
+               <button id="TabViewMasterImportButton" label="Master importieren" imageMso="SlideMasterView" onAction="ShowMasterImport" screentip="Master importieren" supertip="Importiert einen Slide-Master aus einer externen Präsentation (.pptx/.pptm/.ppam/.potx) in die aktive Präsentation. Optional: Master auf alle / selektierte Folien anwenden und ungenutzte Masters entfernen." keytip="MI"/>
+            </group>
             <group id="TabViewTableGroup" label="Tables" imageMso="TableInsert" tag="P" getVisible="InstrumentaGetVisible">
                <gallery idMso="TableInsertGallery" showLabel="false" label="&#x200B;"/>
                <splitButton id="TabViewTableInsertColumnsLeftSplitButton" size="normal" showLabel="false">
@@ -1243,9 +1281,17 @@
                <dropDown id="TabViewInstrumentaScriptPresets" label="Preset" screentip="Select a saved script preset" showLabel="false" getItemCount="ScriptPreset_GetItemCount" getItemLabel="ScriptPreset_GetItemLabel" getItemID="ScriptPreset_GetItemID" onAction="ScriptPreset_OnAction"/>
                <button id="TabViewInstrumentaScriptPresetRun" label="Run preset" screentip="Run the selected preset" imageMso="MacroPlay" showLabel="false" onAction="ScriptPreset_Run"/>
             </group>
+            <group id="TabViewInfrontReviewGroup" label="Review" imageMso="ReviewNewComment" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="TabViewInsertUserStampButton" label="Stempel setzen" imageMso="ReviewInsertComment" onAction="InsertUserStamp" screentip="User-Stempel setzen" supertip="Setzt einen Review-Stempel (Name + Datum/Zeit) auf die aktuelle, alle oder selektierte Folien. Der Stempel wird unten rechts als kleiner grauer Text eingefügt und kann jederzeit entfernt werden." keytip="US"/>
+               <button id="TabViewRemoveUserStampsButton" label="Stempel entfernen" imageMso="ReviewDeleteAllCommentsInDoc" onAction="RemoveUserStamps" screentip="User-Stempel entfernen" supertip="Entfernt alle User-Stempel (InfrontUserStamp) aus der gesamten Präsentation." keytip="UX"/>
+            </group>
+            <group id="TabViewInfrontQualityGroup" label="Quality" imageMso="ReviewTrackChanges" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="TabViewBrandCheckButton" label="Brand Check" imageMso="ReviewRejectAllChangesInDoc" onAction="ShowBrandCheck" screentip="Brand Check" supertip="Prüft die aktive Präsentation auf Einhaltung von Markenrichtlinien (Schriftarten, Farben, Schriftgrößen). Konfiguration über Infront_BrandConfig.ini im Add-in-Ordner." keytip="BC"/>
+            </group>
             <group id="TabViewAllGroup" label="Advanced" imageMso="AdvancedFileProperties" tag="PR" getVisible="InstrumentaGetVisible">
                <button idMso="FileNewDefault" showLabel="false"/>
                <button idMso="ReplaceDialog" showLabel="false"/>
+               <button id="TabViewFindReplaceButton" label="Find &amp; Replace+" imageMso="FindAndReplace" onAction="ShowFindReplace" screentip="Find &amp; Replace+" supertip="Sucht und ersetzt Text über alle, selektierte oder die aktuelle Folie. Mit Scope-Filter, Shape-Filter und optionalem Einschluss von Sprechernotizen. Zeichenformatierung (Fett, Kursiv usw.) bleibt erhalten." showLabel="false" keytip="FR"/>
                <button idMso="AdvancedFileProperties" imageMso="ChooseForm" showLabel="false"/>
                <menu id="TabViewCleaningMenu" label="Cleaning tools" imageMso="ClearMenu" showLabel="false" supertip="Opens the tools for cleaning and fixing common slide issues" screentip="Cleaning Tools">
                   <button id="TabViewcleaning0" label="Move to end and hide selected slides" imageMso="Clear" onAction="CleanUpHideAndMoveSelectedSlides" supertip="Moves the selected slides to the end of the presentation and hides them from the slideshow" screentip="Move and hide slides"/>

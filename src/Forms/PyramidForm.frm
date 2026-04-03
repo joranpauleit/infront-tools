@@ -1595,7 +1595,7 @@ Private Sub RemoveAllInstrumentaPyramidTags()
         Next shp
     Next sld
 
-    MsgBox "All Instrumenta Pyramid tags have been removed.", _
+    MsgBox "All Infront Pyramid tags have been removed.", _
            vbInformation, "Cleanup Complete"
 
 End Sub

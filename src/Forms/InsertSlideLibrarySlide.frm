@@ -346,7 +346,7 @@ Private Sub UserForm_Activate()
     MultiPageThumbnailGrid.visible = False
     If GetSetting("Instrumenta", "SlideLibrary", "SlideLibraryFile", "") = "" Then
         InsertSlideLibrarySlide.Hide
-        MsgBox "No slide library file set. Please Set the file in Instrumenta settings."
+        MsgBox "No slide library file set. Please set the file in Infront Toolkit settings."
         SettingsForm.Show
     Else
         

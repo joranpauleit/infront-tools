@@ -69,7 +69,7 @@ End Sub
 
 Private Sub btnExample_Click()
     Dim example As String
-    example = "# Instrumenta Script Example" & vbCrLf
+    example = "# Infront Script Example" & vbCrLf
     example = example & "# Lines starting with # are comments" & vbCrLf
     example = example & "" & vbCrLf
     example = example & "# Make script re-runnable by cleaning up first" & vbCrLf
@@ -85,7 +85,7 @@ Private Sub btnExample_Click()
     example = example & "SET font.size = 18" & vbCrLf
     example = example & "SET font.bold = TRUE" & vbCrLf
     example = example & "" & vbCrLf
-    example = example & "# Select shapes by name prefix and call an Instrumenta function" & vbCrLf
+    example = example & "# Select shapes by name prefix and call an Infront function" & vbCrLf
     example = example & "SELECT WHERE name STARTSWITH ""script_""" & vbCrLf
     example = example & "CALL ObjectsAlignTops" & vbCrLf
     example = example & "" & vbCrLf
