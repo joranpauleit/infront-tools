@@ -4,6 +4,38 @@ Alle wesentlichen Änderungen an diesem Projekt werden in dieser Datei dokumenti
 
 ---
 
+## [Schritt 7] – Agenda Wizard (2026-04-03)
+
+### Neu
+
+- **`src/Modules/modAgendaWizard.bas`**: Agenda Wizard Modul:
+  - Typ `AgendaConfig` (Public): `Title`, `Items()`, `ItemCount`, `ActiveColor`, `InactiveColor`, `DoneColor`, `TitleFontSize`, `ItemFontSize`, `InsertionMode` (0/1), `InsertAfterSlide`
+  - `ShowAgendaWizard` (Public, Ribbon-Callback): Öffnet Form modeless
+  - `GenerateAgenda(cfg)` (Public): Löscht vorhandene Agenda-Folien, fügt Master-Übersicht und (bei Modus 1) Fortschrittsfolien vor jeder Sektion ein
+  - `InsertAgendaSlide(insertPos, cfg, activeIdx)` (Private): Erstellt Folie ohne Layout-Abhängigkeit (alle Shapes per VBA positioniert); markiert Folie mit Tag `InfrontAgenda=1`; Farblogik: activeIdx=-1 → alle gleich aktiv, activeIdx=i → i aktiv/hervorgehoben, <i → erledigt (DoneColor), >i → inaktiv (InactiveColor)
+  - `DeleteExistingAgendaSlides()` (Public): Löscht rückwärts alle Folien mit Tag `InfrontAgenda=1`; idempotent
+  - `ParseItemList(raw, items(), itemCount)` (Public): Normalisiert `vbCrLf`/`vbCr`/`vbLf`, splittet, überspringt Leerzeilen
+  - `CountAgendaSlides()` (Public): Zählt vorhandene Agenda-Folien (für Form-Status)
+- **`src/Forms/frmAgendaWizard.frm`**: Steuerform:
+  - `InitForm()`: Setzt Standardwerte, ruft `UpdateStatus`
+  - `btnGenerate_Click`: Parst Items, baut AgendaConfig, bestätigt nicht (kein Massen-Risiko), ruft `GenerateAgenda`
+  - `btnDelete_Click`: Bestätigung, ruft `DeleteExistingAgendaSlides`
+  - `btnPickActive/Inactive/Done_Click`: Ruft `PickColorHex` (InputBox mit aktuellem Wert als Vorschlag)
+  - Controls müssen in VBA-IDE angelegt werden (kein .frx)
+- **`src/CustomUI/CustomUI.xml`**: Neue Gruppe `InfrontSlidesGroup` (label="Slides") vor `TableGroup` im Single-Tab-View; `TabViewInfrontSlidesGroup` am Anfang des `TabViewInstrumentaTables`-Tabs. Button: `AgendaWizardButton` → `ShowAgendaWizard`.
+
+### Technische Entscheidungen
+
+| Thema | Entscheidung |
+|---|---|
+| Idempotenz | Tag `InfrontAgenda=1` auf jeder Agenda-Folie → Neugenerierung löscht alte zuverlässig |
+| Layout-Unabhängigkeit | Alle Shapes per `AddTextbox` / `AddLine` positioniert – kein ppLayoutTitle o.ä. |
+| Farbangabe | Hex-InputBox (kein nativer Color-Dialog auf Mac); `btnPick*` als Wrapper |
+| Fortschrittsfolien | activeIdx=i: aktueller Punkt fett+ActiveColor, abgehakte Punkte DoneColor, zukünftige InactiveColor |
+| Folientag | `Slide.Tags.Add "InfrontAgenda", "1"` – persistiert in .pptx/.ppam |
+
+---
+
 ## [Schritt 6] – Global Find & Replace (2026-04-03)
 
 ### Neu

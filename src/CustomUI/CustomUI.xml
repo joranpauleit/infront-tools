@@ -325,6 +325,9 @@
                   <button id="ObjectsStretchBottomShapeTop" label="Stretch shapes to the top edge of the bottommost shape" onAction="ObjectsStretchBottomShapeTop" getEnabled="EnableWhenMultipleShapesSelected" supertip="Stretches the selected shapes to the top edge of the bottommost shape" screentip="Stretch to Bottommost Shape"/>
                </menu>
             </group>
+            <group id="InfrontSlidesGroup" label="Slides" imageMso="SlideMasterInsertLayout" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="AgendaWizardButton" label="Agenda Wizard" imageMso="TableOfContentsInsert" onAction="ShowAgendaWizard" screentip="Agenda Wizard" supertip="Erstellt Übersichts- und optionale Fortschrittsfolien aus einer Themen-Liste. Agenda-Folien werden mit einem internen Tag markiert und können jederzeit gelöscht und neu generiert werden."/>
+            </group>
             <group id="TableGroup" label="Tables" imageMso="TableInsert" tag="P" getVisible="InstrumentaGetVisible">
                <gallery idMso="TableInsertGallery" showLabel="false" label="&#x200B;"/>
                <splitButton id="TableInsertColumnsLeftSplitButton" size="normal" showLabel="false">
@@ -981,6 +984,9 @@
             </group>
          </tab>
          <tab id="TabViewInstrumentaTables" label="[Tables]" getVisible="InstrumentaGetVisibleMultiTabView">
+            <group id="TabViewInfrontSlidesGroup" label="Slides" imageMso="SlideMasterInsertLayout" tag="P" getVisible="InstrumentaGetVisible">
+               <button id="TabViewAgendaWizardButton" label="Agenda Wizard" imageMso="TableOfContentsInsert" onAction="ShowAgendaWizard" screentip="Agenda Wizard" supertip="Erstellt Übersichts- und optionale Fortschrittsfolien aus einer Themen-Liste. Agenda-Folien werden mit einem internen Tag markiert und können jederzeit gelöscht und neu generiert werden."/>
+            </group>
             <group id="TabViewTableGroup" label="Tables" imageMso="TableInsert" tag="P" getVisible="InstrumentaGetVisible">
                <gallery idMso="TableInsertGallery" showLabel="false" label="&#x200B;"/>
                <splitButton id="TabViewTableInsertColumnsLeftSplitButton" size="normal" showLabel="false">
