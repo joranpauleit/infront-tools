@@ -1,0 +1,38 @@
+{
+  "_comment": "Infront Toolkit Brand Compliance Konfiguration. Bearbeite diesen JSON-Block um Brand-Richtlinien anzupassen.",
+  "version": "1.0",
+  "activeProfile": "Default",
+  "profiles": [
+    {
+      "name": "Default",
+      "allowedFonts": [
+        "Calibri",
+        "Arial",
+        "Helvetica Neue",
+        "Helvetica"
+      ],
+      "brandColors": [
+        { "name": "Infront Navy",   "value": "#003366" },
+        { "name": "Infront Red",    "value": "#FF0000" },
+        { "name": "Weiß",           "value": "#FFFFFF" },
+        { "name": "Schwarz",        "value": "#000000" },
+        { "name": "Hellgrau",       "value": "#CCCCCC" }
+      ],
+      "colorTolerance": 10,
+      "minFontSizePt": 8
+    },
+    {
+      "name": "Strict",
+      "allowedFonts": [
+        "Calibri"
+      ],
+      "brandColors": [
+        { "name": "Infront Navy",   "value": "#003366" },
+        { "name": "Weiß",           "value": "#FFFFFF" },
+        { "name": "Schwarz",        "value": "#000000" }
+      ],
+      "colorTolerance": 0,
+      "minFontSizePt": 10
+    }
+  ]
+}
