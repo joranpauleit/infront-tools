@@ -15,133 +15,299 @@ Zielplattform: **PowerPoint für Mac (Microsoft 365)**.
 | Node.js | ≥ 18 |
 | TypeScript | ≥ 5.5 |
 | Office.js Requirement Set | PowerPoint 1.5+ (angestrebt) |
+| Fallback-Set | PowerPoint 1.1+ (Basis-Features) |
 
 ---
 
 ## Bekannte API-Limits und Mac-Einschränkungen
 
-### Kategorie C – Nicht robust umsetzbar
+### Kategorie A – Grundsätzlich nicht umsetzbar (Office.js Mac)
 
-| Feature | Einschränkung | Dokumentiert seit |
+| Feature | Einschränkung | Konsequenz |
 |---|---|---|
-| Screen-Pixel-Farbpicker | EyeDropper API nicht in WebKit/Safari (Stand 2026) | v1.0.0 |
-| Master vollständig ersetzen | `SlideMaster` API in Office.js sehr eingeschränkt, kein vollständiger Ersatz | v1.0.0 |
-| Natives Undo | `Application.Undo()` nicht in Office.js verfügbar | v1.0.0 |
-| Globale Shortcuts | Office Add-ins können keine systemweiten Shortcuts registrieren | v1.0.0 |
-| Tabellen-Zellen-Merge/Split | Kein API in Office.js PowerPoint | v1.0.0 |
-| Animationen programmatisch | `Shape.animations` API sehr eingeschränkt | v1.0.0 |
+| Screen-Pixel-Farbpicker | EyeDropper API nicht in WKWebView/WebKit (Stand 2026) | Fallback: Hex-Eingabe, Shape-Farbe übernehmen, Palette |
+| Master vollständig ersetzen | Kein `SlideMaster`-Ersatz-API in Office.js | Fallback: Farb-/Font-Mapping deck-weit |
+| Natives programm. Undo | `Application.Undo()` nicht in Office.js | Session-State-Snapshot als Fallback |
+| Globale Shortcuts | Office Add-ins dürfen keine System-Shortcuts registrieren | Interne Task-Pane-Shortcuts + Ribbon-Buttons |
+| Slide-Layout-Import | Layouts können nicht aus fremder Datei importiert werden | Nicht implementiert, dokumentiert in MasterImportPanel |
+| Animationen programmatisch | `Shape.animations` sehr eingeschränkt | Nicht implementiert |
 
 ### Kategorie B – Umsetzbar mit Workaround
 
 | Feature | Einschränkung | Workaround |
 |---|---|---|
-| Corner Radius präzise | `adjustments`-Array nur für roundedRectangle dokumentiert | Normierung via Shape-Breite/-Höhe, andere Typen überspringen |
-| Shape Tags persistent | Requirement Set PowerPoint 1.5+; auf alten Mac-Versionen nicht verfügbar | Shape-Name-Encoding als Fallback |
-| Agenda Auto-Update | Keine Event-API für Slide-Wechsel auf Mac | Manueller Update-Button |
-| Find & Replace Farbe | Keine Farbsuche-API | Alle Shapes iterieren, RGB-Vergleich mit Toleranz |
-| Seitenzahlen aktualisieren | Platzhalter-Zugriff eingeschränkt | Textbox nach bekanntem Namen suchen |
+| Corner Radius präzise | `adjustments`-Array nur für `roundedRectangle` | Normierung via Shape-Breite/-Höhe; andere Typen werden übersprungen |
+| Shape Tags persistent | API 1.5+; auf alten Versionen nicht verfügbar | Shape-Name-Konvention (`INFRONT_*`) als Primär-Identifier |
+| Agenda Auto-Update | Keine `DocumentSelectionChanged`-Event-API auf Mac | Manueller Update-Button; kein automatisches Sync |
+| Find & Replace Farbe | Keine Farbsuche-API | Alle Shapes iterieren, RGB-Vergleich mit konfigurierbarer Toleranz |
+| Font-Farbe in Tabellen | Kein font-per-run-API für Tabellen-Zellen | Text-Farbe der gesamten Range gesetzt (grobe Annäherung) |
+| Shadow-Eigenschaften | `Shape.shadow` eingeschränkt auf Mac | Try/catch; kein Fehler wenn nicht verfügbar |
+| `Slide.setSelectedSlides()` | Ist auf `Presentation`, nicht `Slide` | `context.presentation.setSelectedSlides([slideId])` |
+| `ShapeLineDashStyle` | Verfügbarkeit je nach API-Set | Try/catch; fällt auf Solid zurück |
+
+### Kategorie C – Performancerisiken
+
+| Feature | Risiko | Gegenmaßnahme |
+|---|---|---|
+| Brand Check (50+ Shapes) | Viele context.sync() → langsam | Batch-Load pro Slide; Fortschritts-Callback |
+| Find & Replace Farbe (deck-weit) | O(n×slides×shapes) | Batch-Load pro Slide |
+| Master Scan (scanDeckTheme) | Pro Shape bis zu 3 Syncs | Bewusste Entscheidung; Nutzer informiert |
+| Agenda-Update (deck-weit) | context.sync() pro Shape-Schreib | Akzeptiert; wird nur bei manuellem Update ausgelöst |
 
 ---
 
-## Modul-/Service-Übersicht
+## Modul-Übersicht
 
 | Modul | Pfad | Zweck |
 |---|---|---|
-| SelectionService | `src/services/powerpoint/SelectionService.ts` | Selektion lesen |
-| ShapeService | `src/services/powerpoint/ShapeService.ts` | Shape-Suche, -Löschung |
-| SlideService | `src/services/powerpoint/SlideService.ts` | Slide-Iteration |
-| TextService | `src/services/powerpoint/TextService.ts` | Text lesen/schreiben |
-| ConfigService | `src/services/config/ConfigService.ts` | Document Settings |
-| BrandConfig | `src/services/config/BrandConfig.ts` | Typen + Default-Konfiguration |
-| SessionState | `src/services/state/SessionState.ts` | Undo-Fallback |
-| colorUtils | `src/utils/colorUtils.ts` | Farb-Konvertierung, Distanz |
-| geometryUtils | `src/utils/geometryUtils.ts` | Positionen, Abstände in pt |
-| logger | `src/utils/logger.ts` | Zentrales Logging |
-| errorHandler | `src/utils/errorHandler.ts` | Office.js Fehler-Mapping |
-| notifications | `src/utils/notifications.ts` | Benachrichtigungs-Typen |
+| CornerRadiusService | `src/features/cornerRadius/` | Eckenradius lesen/setzen |
+| ColorPickerService | `src/features/colorPicker/` | Farben lesen/anwenden, Palette |
+| BrandCheckService | `src/features/brandCheck/` | Markenprofil-Prüfung, Fixes, CSV-Export |
+| FormatPainterService | `src/features/formatPainter/` | Format kopieren/anwenden, Presets |
+| FindReplaceService | `src/features/findReplace/` | Text/Farbe/Font suchen+ersetzen |
+| AgendaService | `src/features/agenda/` | Agenda-Shapes einfügen/aktualisieren |
+| MasterImportService | `src/features/masterImport/` | Theme-Farb-/Font-Mapping (Fallback) |
+| ReviewService | `src/features/review/` | Kommentare/Highlights einfügen, Navigation |
+| GapEqualizerService | `src/features/gapEqualizer/` | Abstände angleichen (equal/fixed/pack) |
+| RedBoxService | `src/features/redBox/` | Safe-Area-Rahmen, Foliengröße, Persistenz |
+| ConfigService | `src/services/config/` | Document Settings lesen/schreiben |
+| SessionState | `src/services/state/` | Undo-Stack (max 10), Format-Painter-Quelle |
+| colorUtils | `src/utils/colorUtils.ts` | Hex/RGB-Konvertierung, Distanz, Normalisierung |
+| geometryUtils | `src/utils/geometryUtils.ts` | Positionen/Abstände in pt, BoundingBox |
+| logger | `src/utils/logger.ts` | Konsolen-Logging mit Modulpräfix |
 
 ---
 
-## Happy-Path-Tests (Grundgerüst)
+## Deployment-Voraussetzungen
 
-### Add-in laden
+```bash
+npm install
+npm run build        # dist/ wird erzeugt
+# Oder für lokale Entwicklung:
+npm start            # HTTPS-Server auf https://localhost:3000
+```
+
+Sideload in PowerPoint Mac:
+1. Datei → Optionen → Add-Ins verwalten → Eigene XML-Manifeste
+2. `manifest.xml` auswählen
+3. Tab „Infront Toolkit" erscheint im Ribbon
+
+---
+
+## Happy-Path-Tests
+
+### 1. Add-in laden
 
 - [ ] Dev-Server läuft auf `https://localhost:3000`
 - [ ] Zertifikat im Mac-Browser als vertrauenswürdig markiert
 - [ ] `manifest.xml` erfolgreich in PowerPoint geladen (Sideload)
 - [ ] Tab „Infront Toolkit" erscheint im Ribbon
 - [ ] Alle 7 Gruppen sichtbar: Shapes, Format, Quality, Ausrichten, Struktur, Design, Review
+- [ ] Alle deutschen Labels korrekt angezeigt
 
-### Ribbon-Buttons
+### 2. Ribbon-ExecuteFunction-Buttons
 
-- [ ] Eckenradius → öffnet Task Pane mit CornerRadius-Panel
-- [ ] Farbwähler → öffnet Task Pane mit ColorPicker-Panel
-- [ ] Brand Check → öffnet Task Pane mit BrandCheck-Panel
-- [ ] Format Painter+ → öffnet Task Pane mit FormatPainter-Panel
-- [ ] Suchen & Ersetzen → öffnet Task Pane mit FindReplace-Panel
-- [ ] Gap... → öffnet Task Pane mit GapEqualizer-Panel
-- [ ] Agenda → öffnet Task Pane mit Agenda-Panel
-- [ ] Master importieren → öffnet Task Pane mit MasterImport-Panel
-- [ ] Red Box Einstellungen → öffnet Task Pane mit RedBox-Panel
-- [ ] Kommentar → öffnet Task Pane mit Review-Panel
-- [ ] Meine Kommentare → öffnet Task Pane mit Review-Panel (my-comments)
+- [ ] **Gap H**: ≥3 Shapes selektiert → horizontale Abstände werden angeglichen
+- [ ] **Gap V**: ≥3 Shapes selektiert → vertikale Abstände werden angeglichen
+- [ ] **Red Box (Toggle)**: INFRONT_REDBOX erscheint auf aktiver Folie
+- [ ] **Red Box (Toggle 2×)**: INFRONT_REDBOX wird entfernt
+- [ ] **Red Box: Alle Folien**: INFRONT_REDBOX auf allen Folien eingefügt
+- [ ] **Red Box entfernen**: Alle INFRONT_REDBOX-Shapes gelöscht
+- [ ] **Markieren**: INFRONT_HIGHLIGHT_*-Shape erscheint auf aktiver Folie
+- [ ] **Kommentare entfernen**: Alle INFRONT_COMMENT_*- und INFRONT_HIGHLIGHT_*-Shapes gelöscht
 
-### Direkt-Befehle (ExecuteFunction)
+### 3. Corner Radius (Task Pane)
 
-- [ ] Gap H: 3 selektierte Shapes → horizontale Abstände werden angeglichen
-- [ ] Gap V: 3 selektierte Shapes → vertikale Abstände werden angeglichen
-- [ ] Red Box: INFRONT_REDBOX erscheint auf aktiver Slide
-- [ ] Red Box (nochmals): INFRONT_REDBOX wird entfernt (Toggle)
-- [ ] Red Box: Alle Slides → INFRONT_REDBOX auf allen Slides
-- [ ] Red Box entfernen → alle INFRONT_REDBOX-Shapes gelöscht
-- [ ] Markieren → INFRONT_HIGHLIGHT_*-Shape erscheint
-- [ ] Kommentare entfernen → alle INFRONT_COMMENT_*-Shapes gelöscht
+- [ ] Slider auf 8 pt → Rounded Rectangle angepasst
+- [ ] Eingabe „0" → kein Fehler, Radius auf 0 gesetzt
+- [ ] Kein Shape selektiert → Warnmeldung „Bitte ein Shape selektieren"
+- [ ] Reguläres Rechteck selektiert → Meldung „0 angepasst, 1 übersprungen"
+- [ ] Mehrere Shapes selektiert → alle Rounded Rectangles werden angepasst
+- [ ] „Aktuellen Radius lesen" zeigt korrekten Wert
 
-### Corner Radius Panel (partiell)
+### 4. Color Picker (Task Pane)
 
-- [ ] Eingabe „8" → Rounded Rectangle wird angepasst
-- [ ] Eingabe „0" → kein Fehler, Radius auf 0
-- [ ] Ungültige Eingabe → Fehlermeldung erscheint
-- [ ] Kein Shape selektiert → Warnmeldung erscheint
-- [ ] Reguläres Rechteck → wird übersprungen, Meldung zeigt „0 angepasst, 1 übersprungen"
+- [ ] Hex-Eingabe `FF0000` → rote Vorschau erscheint (ohne `#` erlaubt)
+- [ ] Kurzform `F00` → wird zu `#FF0000` normalisiert
+- [ ] „Aus Shape" → Füllfarbe des selektierten Shapes übernommen
+- [ ] Ungültiger Hex → Fehlermeldung erscheint
+- [ ] „Auf Füllung anwenden" → Shape-Füllung ändert sich
+- [ ] „Auf Linie anwenden" → Shape-Linie ändert sich
+- [ ] „Auf Schrift anwenden" → Text-Farbe ändert sich
+- [ ] Zuletzt-verwendet-Farben (max. 8) erscheinen nach erstem Anwenden
+- [ ] Marken-Farben aus BrandConfig korrekt angezeigt
 
-### Color Picker Panel (partiell)
+### 5. Brand Check (Task Pane)
 
-- [ ] Hex-Eingabe „#FF0000" → rote Vorschau erscheint
-- [ ] Kurzform „#F00" → wird zu „#FF0000" normalisiert
-- [ ] „Aus Shape" → Füllfarbe des selektierten Shapes wird übernommen
-- [ ] Ungültiger Hex → Fehlermeldung
-- [ ] Anwenden auf Füllung → Shape-Füllung ändert sich
-- [ ] Anwenden auf Linie → Shape-Linie ändert sich
-- [ ] Zuletzt-verwendet-Farben erscheinen nach erstem Anwenden
+- [ ] „Brand Check starten" → Fortschrittsanzeige erscheint
+- [ ] Violations werden in Liste angezeigt (Typ, Folie, Wert)
+- [ ] „Zur Folie" navigiert korrekt
+- [ ] „Alle fixieren" → Violations werden korrigiert
+- [ ] „Als CSV exportieren" → Datei-Download startet
+- [ ] Präsentation ohne Violations → Meldung „Keine Verstöße gefunden"
+- [ ] Profil wechseln → Liste aktualisiert sich
 
-### Find & Replace (Text-Tab)
+### 6. Format Painter+ (Task Pane)
 
-- [ ] Suchtext eingeben, Ersetzen-Text eingeben → „Alle ersetzen" läuft
-- [ ] Leeres Suchfeld → „Alle ersetzen"-Button deaktiviert
-- [ ] Text nicht gefunden → Meldung „0 Textvorkommen ersetzt"
+- [ ] Shape selektieren, „Format kopieren" → Format gespeichert (Stempel-Icon aktiv)
+- [ ] Anderes Shape selektieren, „Format anwenden" → Format übertragen
+- [ ] Scope „Alle Folien, gleicher Layout-Typ" → deck-weite Anwendung
+- [ ] Preset speichern → Name erscheint in Preset-Liste
+- [ ] Preset laden → Format wird eingefügt
+- [ ] Preset löschen → aus Liste entfernt
 
-### Review Panel
+### 7. Find & Replace (Task Pane)
 
-- [ ] Kommentar einfügen → INFRONT_COMMENT_*-Shape erscheint auf aktiver Slide
-- [ ] Zeitstempel korrekt formatiert (DE: TT.MM.JJJJ HH:MM)
+- [ ] **Text-Tab**: Suchen + Ersetzen → Treffer werden ersetzt, Anzahl gemeldet
+- [ ] **Text-Tab**: Groß-/Kleinschreibung-Flag funktioniert
+- [ ] **Text-Tab**: Regex-Flag funktioniert (z.B. `\d+` findet Zahlen)
+- [ ] **Farbe-Tab**: Hex-Eingabe Quell-/Ziel-Farbe → Shapes werden ersetzt
+- [ ] **Font-Tab**: Schriftart von Arial auf Calibri → deck-weit ersetzt
+- [ ] Leeres Suchfeld → Buttons deaktiviert
+- [ ] Keine Treffer → Meldung „0 Ersetzungen"
+
+### 8. Agenda Wizard (Task Pane)
+
+- [ ] 3 Abschnitte eingeben → Shapes INFRONT_AGENDA_ITEM_01-03 auf aktiver Folie
+- [ ] „Auf aktiver Folie" → nur aktuelle Folie hat Agenda
+- [ ] „Alle aktualisieren" → alle INFRONT_AGENDA_*-Shapes werden aktualisiert
+- [ ] „Alle entfernen" → alle Agenda-Shapes gelöscht
+- [ ] „Agenda-Folien finden" → zeigt Folien-Indizes mit Agenda-Shapes
+
+### 9. Master / Theme Import (Task Pane)
+
+- [ ] API-Einschränkungs-Warnung sichtbar
+- [ ] **Deck-Scan**: Farben + Fonts erscheinen nach Scan
+- [ ] Farb-Swatch klicken → wird als Quell-Farbe in Mapping übernommen
+- [ ] Font klicken → wird als Quell-Font in Mapping übernommen
+- [ ] **Preset laden**: Mappings werden befüllt
+- [ ] Farb-Mapping eingeben + anwenden → Shapes werden gefärbt
+- [ ] Font-Mapping eingeben + anwenden → Schriftarten werden ersetzt
+- [ ] Toleranz 0 = exakt; Toleranz 20 = toleranter Match
+
+### 10. Review / Annotationen (Task Pane)
+
+- [ ] Kommentar einfügen → INFRONT_COMMENT_*-Shape auf aktiver Folie (gelbe Textbox)
+- [ ] Zeitstempel korrekt formatiert: `[Name – dd.mm.yyyy, hh:mm]`
+- [ ] Highlight einfügen → INFRONT_HIGHLIGHT_*-Rechteck auf aktiver Folie
+- [ ] Farb-Auswahl für Kommentar/Highlight funktioniert
+- [ ] Statistik-Banner zeigt korrekte Anzahl
+- [ ] **Meine Kommentare**: Liste zeigt alle INFRONT_COMMENT_*-Shapes
+- [ ] „Zur Folie" → navigiert zu korrekter Folie
+- [ ] Einzelnen Kommentar löschen → aus Liste und Folie entfernt
+- [ ] „Alle entfernen" → alle Annotations-Shapes gelöscht
+
+### 11. Gap Equalizer (Task Pane)
+
+- [ ] **Equal, Horizontal**: 4 Shapes → mittlere 2 gleichmäßig verteilt
+- [ ] **Fixed, 12 pt**: 3 Shapes → Abstand exakt 12 pt zwischen allen
+- [ ] **Pack, Vertikal**: Shapes ohne Lücke aufgestapelt
+- [ ] „Vorschau" zeigt berechneten Abstand ohne zu ändern
+- [ ] Negative Vorschau → Überlappungs-Warnung erscheint
+- [ ] < 3 Shapes (equal) → Warnmeldung
+- [ ] Schnell-Buttons setzen Modus korrekt
+
+### 12. Red Box (Task Pane)
+
+- [ ] Abstände 20/20/20/20 pt → Box korrekt positioniert (720×540 Folie)
+- [ ] Abstände ändern → CSS-Vorschau aktualisiert sich sofort
+- [ ] „Verknüpft"-Toggle: Wert in einem Feld → alle vier Felder gleich
+- [ ] Farb-Preset → Vorschau aktualisiert sich
+- [ ] Linientyp Gestrichelt → Box hat gestrichelte Linie
+- [ ] Status-Badge: grün wenn Box vorhanden, grau wenn nicht
+- [ ] „Aktualisieren" → Margins und Farbe auf bestehender Box neu gesetzt
+- [ ] „Alle Folien" → Box auf allen Folien ohne Box eingefügt
+- [ ] „Alle entfernen" → alle INFRONT_REDBOX-Shapes gelöscht
+- [ ] Einstellungen werden nach Neustart der Task Pane geladen (Document.Settings)
 
 ---
 
 ## Edge-Case-Tests
 
-- [ ] Keine Shapes selektiert → alle relevanten Features zeigen Warnmeldung
-- [ ] Leere Präsentation (0 Slides) → kein Absturz
-- [ ] Shape-Gruppe selektiert → defensiv behandelt, kein Absturz
-- [ ] Tabellen-Shape selektiert → Corner Radius überspringt ohne Fehler
-- [ ] Sehr viele Shapes (50+) → kein Timeout
+| Testfall | Erwartetes Verhalten |
+|---|---|
+| Keine Shapes selektiert | Alle relevanten Features zeigen Warnmeldung, kein Absturz |
+| Leere Präsentation (0 Folien) | Kein Absturz; ggf. Meldung „Keine Folien gefunden" |
+| Gruppenselektierung | Gruppe wird iteriert (max. 2 Ebenen tief); einzelne Shapes werden verarbeitet |
+| Tabellen-Shape selektiert | Corner Radius: übersprungen; Brand Check: Text-Farbe geprüft, kein Font-per-Run |
+| Shapes mit 0 Breite/Höhe | Gap-Equalizer rechnet korrekt, kein NaN |
+| Red Box: Margins > Foliengröße | Fehler „Breite/Höhe ≤ 0" wird gemeldet |
+| Hex-Eingabe mit #-Prefix | normalizeHex() entfernt `#` korrekt |
+| Hex-Eingabe ohne #-Prefix | normalizeHex() ergänzt `#` korrekt |
+| Ungültiger Hex | normalizeHex() gibt null zurück; UI zeigt Fehlermeldung |
+| Font-Replace: Schriftart nicht vorhanden | Kein Absturz; Meldung „0 ersetzt" |
+| context.sync() Fehler (Network) | Catch-Block gibt Fehlermeldung an NotificationBar weiter |
+| PowerPoint.run Timeout | Catch-Block gibt Fehlermeldung aus |
+| Document.Settings nicht verfügbar | getSetting() gibt defaultValue zurück, kein Absturz |
+| 50+ Shapes auf einer Folie | Brand Check < 5s; kein Timeout |
+| Emoji und Sonderzeichen im Text | Find & Replace findet und ersetzt korrekt |
+| Regex mit `/g` Flag | lastIndex wird vor jedem test() zurückgesetzt (Bug-Prävention) |
+| Gradient Fill | FormatPainter: `unsupported: true`; kein Absturz |
+| Shadow-Eigenschaften | try/catch verhindert Absturz auf Mac |
+| Tags API nicht verfügbar (API < 1.5) | try/catch verhindert Absturz; Shape-Name-Fallback aktiv |
+
+---
+
+## Regressionstest nach Änderungen
+
+Vor jedem Release die folgenden Smoke-Tests durchführen:
+
+1. **Ribbon lädt**: Tab erscheint, alle Gruppen sichtbar, keine JS-Fehler in DevTools
+2. **Corner Radius**: Rounded Rectangle, Wert 8 → Radius wird gesetzt
+3. **Red Box Toggle**: Einmal ein, einmal aus auf aktueller Folie
+4. **Gap H**: 4 Shapes → gleichmäßige Verteilung
+5. **Kommentar einfügen**: Textbox auf aktiver Folie mit Zeitstempel
+6. **Brand Check**: Scan startet ohne Absturz
 
 ---
 
 ## Deployment-Checkliste (Produktion)
 
-- [ ] `manifest.xml`: localhost-URLs durch Produktions-Domain ersetzen
-- [ ] HTTPS-Zertifikat auf Produktions-Server gültig
-- [ ] Icons in `assets/icons/` vorhanden (16/32/80 px)
-- [ ] `npm run build` erfolgreich
-- [ ] `dist/` auf Server deployt
+### Vor dem Build
+
+- [ ] `manifest.xml`: alle `localhost:3000`-URLs durch Produktions-Domain ersetzen
+- [ ] `manifest.xml`: `<Id>` bleibt gleich (keine neue GUID bei Updates)
+- [ ] `package.json`: Version hochzählen
+- [ ] `CHANGELOG.md` aktualisiert
+
+### Build
+
+```bash
+npm run build          # TypeScript kompilieren + Webpack
+ls dist/               # taskpane.js, commands.js, taskpane.html, commands.html
+```
+
+- [ ] `npm run build` ohne Fehler abgeschlossen
+- [ ] `dist/taskpane.js` vorhanden
+- [ ] `dist/commands.js` vorhanden
+- [ ] `dist/assets/icons/` mit Icon-Dateien (16/32/80 px PNG)
+
+### Deploy auf Server
+
+- [ ] HTTPS-Zertifikat gültig (kein self-signed in Produktion)
+- [ ] CORS-Header gesetzt: `Access-Control-Allow-Origin: *`
+- [ ] Content-Type für `.js` korrekt: `application/javascript`
+- [ ] Content-Type für `.html` korrekt: `text/html`
+- [ ] `manifest.xml` via IT an Nutzer verteilt (oder zentrale IT-Deployment)
+
+### Nach Deployment
+
+- [ ] `manifest.xml` in PowerPoint Mac sideloaden
+- [ ] Tab erscheint
+- [ ] Keine Mixed-Content-Warnungen (alles HTTPS)
+- [ ] DevTools (F12 in Add-in) zeigt keine unbehandelten Fehler
+
+---
+
+## Bekannte Nicht-Implementierte Features (Scope)
+
+Diese Features wurden bewusst ausgelassen oder werden in einer späteren Version umgesetzt:
+
+| Feature | Begründung |
+|---|---|
+| SlideMaster vollständig ersetzen | Technisch nicht möglich (API-Grenze) |
+| Animations-Editor | Außerhalb Scope v1.0 |
+| Slide-Sortierer / Folien verschieben | Kein API in Office.js |
+| PDF-Export konfigurieren | Kein API in Office.js |
+| Inhaltsverzeichnis auto-generieren | Spätere Version |
+| Mehrsprachigkeit (EN/DE Toggle) | Spätere Version |

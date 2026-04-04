@@ -343,7 +343,8 @@ export async function goToSlideById(slideId: string): Promise<void> {
 
     const target = slides.items.find((s) => s.id === slideId);
     if (target) {
-      target.setSelectedSlides();
+      // setSelectedSlides() is on Presentation (API 1.5+), not on Slide
+      context.presentation.setSelectedSlides([target.id]);
       await context.sync();
     }
   });

@@ -67,7 +67,7 @@ export const DEFAULT_REDBOX_CONFIG: RedBoxConfig = {
 // ─── Konfiguration laden / speichern ──────────────────────────────────────────
 
 export function loadRedBoxConfig(): RedBoxConfig {
-  const saved = getSetting<Partial<RedBoxConfig>>(SETTINGS_KEY);
+  const saved = getSetting<Partial<RedBoxConfig> | null>(SETTINGS_KEY, null);
   return saved ? { ...DEFAULT_REDBOX_CONFIG, ...saved } : { ...DEFAULT_REDBOX_CONFIG };
 }
 
