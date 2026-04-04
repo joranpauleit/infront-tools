@@ -10,6 +10,12 @@
 
 /* global Office */
 
+import {
+  toggleRedBoxOnCurrentSlide,
+  addRedBoxToAllSlides,
+  removeRedBoxFromAllSlides,
+} from "../features/redBox/RedBoxService";
+
 Office.onReady(() => {
   // Alle ExecuteFunction-Handler werden als Properties auf `window` registriert,
   // damit das Office-Runtime sie per Name aufrufen kann.
@@ -113,116 +119,44 @@ function gapVertical(event: Office.AddinCommands.Event): void {
 
 /**
  * Schaltet die Red Box (INFRONT_REDBOX) auf der aktiven Slide ein/aus.
- * Vollständige Implementierung: Schritt 13.
+ * Delegiert an RedBoxService (Schritt 13).
  */
 function toggleRedBox(event: Office.AddinCommands.Event): void {
-  PowerPoint.run(async (context) => {
-    const slide = context.presentation.getSelectedSlides().getItemAt(0);
-    slide.load("shapes/items");
-    await context.sync();
-
-    const shapes = slide.shapes;
-    shapes.load("items/name");
-    await context.sync();
-
-    const existing = shapes.items.find((s) => s.name === "INFRONT_REDBOX");
-
-    if (existing) {
-      existing.delete();
-    } else {
-      // Platzhalter – vollständige Implementierung in Schritt 13
-      const box = shapes.addGeometricShape(PowerPoint.GeometricShapeType.rectangle);
-      box.name = "INFRONT_REDBOX";
-      box.load(["left", "top", "width", "height"]);
-      await context.sync();
-
-      // Standard: 20pt Abstand ringsum auf Standardfolie (720×540pt)
-      box.left   = 20;
-      box.top    = 20;
-      box.width  = 720 - 40;
-      box.height = 540 - 40;
-      box.fill.setSolidColor("transparent");
-      box.lineFormat.color = "#FF0000";
-      box.lineFormat.weight = 1.5;
-    }
-
-    await context.sync();
-    event.completed();
-  }).catch((err: Error) => {
-    console.error("[InfrontToolkit] toggleRedBox:", err);
-    event.completed();
-  });
+  toggleRedBoxOnCurrentSlide()
+    .then(() => event.completed())
+    .catch((err: Error) => {
+      console.error("[InfrontToolkit] toggleRedBox:", err);
+      event.completed();
+    });
 }
 
 /**
  * Fügt INFRONT_REDBOX auf allen Slides ein.
- * Vollständige Implementierung: Schritt 13.
+ * Delegiert an RedBoxService (Schritt 13).
  */
 function redBoxAllSlides(event: Office.AddinCommands.Event): void {
-  PowerPoint.run(async (context) => {
-    const slides = context.presentation.slides;
-    slides.load("items");
-    await context.sync();
-
-    for (const slide of slides.items) {
-      const shapes = slide.shapes;
-      shapes.load("items/name");
-      await context.sync();
-
-      const existing = shapes.items.find((s) => s.name === "INFRONT_REDBOX");
-      if (!existing) {
-        const box = shapes.addGeometricShape(PowerPoint.GeometricShapeType.rectangle);
-        box.name = "INFRONT_REDBOX";
-        box.load(["left", "top", "width", "height"]);
-        await context.sync();
-        box.left   = 20;
-        box.top    = 20;
-        box.width  = 720 - 40;
-        box.height = 540 - 40;
-        box.fill.setSolidColor("transparent");
-        box.lineFormat.color = "#FF0000";
-        box.lineFormat.weight = 1.5;
-      }
-    }
-
-    await context.sync();
-    event.completed();
-  }).catch((err: Error) => {
-    console.error("[InfrontToolkit] redBoxAllSlides:", err);
-    event.completed();
-  });
+  addRedBoxToAllSlides()
+    .then(() => event.completed())
+    .catch((err: Error) => {
+      console.error("[InfrontToolkit] redBoxAllSlides:", err);
+      event.completed();
+    });
 }
 
 /**
  * Entfernt alle INFRONT_REDBOX-Shapes aus dem gesamten Deck.
+ * Delegiert an RedBoxService (Schritt 13).
  */
 function removeRedBoxAll(event: Office.AddinCommands.Event): void {
-  PowerPoint.run(async (context) => {
-    const slides = context.presentation.slides;
-    slides.load("items");
-    await context.sync();
-
-    let removed = 0;
-    for (const slide of slides.items) {
-      const shapes = slide.shapes;
-      shapes.load("items/name");
-      await context.sync();
-
-      for (const shape of shapes.items) {
-        if (shape.name === "INFRONT_REDBOX") {
-          shape.delete();
-          removed++;
-        }
-      }
-    }
-
-    await context.sync();
-    console.log(`[InfrontToolkit] removeRedBoxAll: ${removed} Box(en) entfernt.`);
-    event.completed();
-  }).catch((err: Error) => {
-    console.error("[InfrontToolkit] removeRedBoxAll:", err);
-    event.completed();
-  });
+  removeRedBoxFromAllSlides()
+    .then((r) => {
+      console.log(`[InfrontToolkit] removeRedBoxAll: ${r.removed} Box(en) entfernt.`);
+      event.completed();
+    })
+    .catch((err: Error) => {
+      console.error("[InfrontToolkit] removeRedBoxAll:", err);
+      event.completed();
+    });
 }
 
 /**
