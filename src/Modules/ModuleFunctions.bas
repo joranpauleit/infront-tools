@@ -270,12 +270,18 @@ Public Function SanitizeFilename(filename As String) As String
     r = Replace(r, "/", "")
     r = Replace(r, "\", "")
     r = Replace(r, ":", "")
+    r = Replace(r, ";", "")
     r = Replace(r, "*", "")
     r = Replace(r, "?", "")
     r = Replace(r, Chr(34), "")
     r = Replace(r, "<", "")
     r = Replace(r, ">", "")
     r = Replace(r, "|", "")
+    r = Replace(r, vbCr, "")
+    r = Replace(r, vbLf, "")
+    Do While Len(r) > 0 And (Right$(r, 1) = "." Or Right$(r, 1) = " ")
+        r = Left$(r, Len(r) - 1)
+    Loop
     SanitizeFilename = Trim(r)
 End Function
 
@@ -301,4 +307,3 @@ End Function
 Public Function SanitizeAppleScriptPath(filePath As String) As String
     SanitizeAppleScriptPath = Replace(filePath, Chr(34), Chr(92) & Chr(34))
 End Function
-

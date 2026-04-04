@@ -140,6 +140,7 @@ Sub EmailSelectedSlides()
         
         Dim TemporaryPresentation, ThisPresentation As Presentation
         Dim PresentationFilename, EmailSubject As String
+        Dim tempDir As String
         Dim SlideLoop As Long
         Dim PresentationSlides As Slide
         Dim DotPosition As Integer
@@ -191,15 +192,18 @@ Sub EmailSelectedSlides()
         
         #If Mac Then
         
+        tempDir = MacScript("return posix path of (path to temporary items) as string")
+        
         If PresentationFilename & ".pptx" = ThisPresentation.name Then
         PresentationFilename = PresentationFilename & "_1"
         End If
         
-        ThisPresentation.SaveCopyAs MacScript("return posix path of (path to temporary items) as string") & PresentationFilename & ".pptx"
-        Set TemporaryPresentation = Presentations.Open(MacScript("return posix path of (path to temporary items) as string") & PresentationFilename & ".pptx")
+        ThisPresentation.SaveCopyAs tempDir & PresentationFilename & ".pptx"
+        Set TemporaryPresentation = Presentations.Open(tempDir & PresentationFilename & ".pptx")
         #Else
-        ThisPresentation.SaveCopyAs Environ("TEMP") & "\" & PresentationFilename & ".pptx"
-        Set TemporaryPresentation = Presentations.Open(Environ("TEMP") & "\" & PresentationFilename & ".pptx")
+        tempDir = Environ("TEMP") & "\"
+        ThisPresentation.SaveCopyAs tempDir & PresentationFilename & ".pptx"
+        Set TemporaryPresentation = Presentations.Open(tempDir & PresentationFilename & ".pptx")
         #End If
         
         ProgressForm.Show
@@ -221,10 +225,15 @@ Sub EmailSelectedSlides()
         Dim ParamString As String
         Dim OutlookMessageMac As String
 
-        ParamString = EmailSubject & ";" & MacScript("return posix path of (path to temporary items) as string") & PresentationFilename & ".pptx"
+        ParamString = BuildAppleScriptParam(EmailSubject, tempDir & PresentationFilename & ".pptx")
+        If ParamString = "" Then
+            Kill (tempDir & PresentationFilename & ".pptx")
+            MsgBox "Temporary file path contains unsupported characters."
+            Exit Sub
+        End If
         OutlookMessageMac = AppleScriptTask("InstrumentaAppleScriptPlugin.applescript", "SendFileWithOutlook", CStr(ParamString))
 
-        Kill (MacScript("return posix path of (path to temporary items) as string") & PresentationFilename & ".pptx")
+        Kill (tempDir & PresentationFilename & ".pptx")
         #Else
                
         On Error Resume Next
@@ -240,13 +249,13 @@ Sub EmailSelectedSlides()
             .cc = ""
             .subject = EmailSubject
             .Body = ""
-            .Attachments.Add Environ("TEMP") & "\" & PresentationFilename & ".pptx"
+            .Attachments.Add tempDir & PresentationFilename & ".pptx"
             .Display
         End With
          On Error GoTo 0
         
         'Delete temporary slides
-        Kill (Environ("TEMP") & "\" & PresentationFilename & ".pptx")
+        Kill (tempDir & PresentationFilename & ".pptx")
         
         #End If
         
@@ -274,6 +283,7 @@ Sub EmailSelectedSlidesAsPDF()
         #End If
              
         Dim PresentationFilename, EmailSubject As String
+        Dim tempDir As String
         Dim SlideLoop As Long
         Dim DotPosition As Integer
         
@@ -320,13 +330,15 @@ Sub EmailSelectedSlidesAsPDF()
         If Len(PresentationFilename) = 0 Then Exit Sub
       
       
-              #If Mac Then
+        #If Mac Then
         'This does not work anymore
         'OutlookMessageMac = MacSendMailViaOutlook(EmailSubject, ActivePresentation.Path & "/" & PresentationFilename & ".pptx")
     
+        tempDir = MacScript("return posix path of (path to temporary items) as string")
         
-        ThisPresentation.SaveCopyAs MacScript("return posix path of (path to temporary items) as string") & PresentationFilename & "_temp.pptx"
-        Set TemporaryPresentation = Presentations.Open(MacScript("return posix path of (path to temporary items) as string") & PresentationFilename & "_temp.pptx")
+        
+        ThisPresentation.SaveCopyAs tempDir & PresentationFilename & "_temp.pptx"
+        Set TemporaryPresentation = Presentations.Open(tempDir & PresentationFilename & "_temp.pptx")
         
         ProgressForm.Show
         NumberOfSlides = TemporaryPresentation.Slides.count
@@ -338,21 +350,28 @@ Sub EmailSelectedSlidesAsPDF()
         Unload ProgressForm
         
         TemporaryPresentation.Save
-        TemporaryPresentation.SaveCopyAs MacScript("return posix path of (path to temporary items) as string") & PresentationFilename & ".pdf", ppSaveAsPDF
+        TemporaryPresentation.SaveCopyAs tempDir & PresentationFilename & ".pdf", ppSaveAsPDF
         TemporaryPresentation.Close
-        Kill (MacScript("return posix path of (path to temporary items) as string") & PresentationFilename & "_temp.pptx")
+        Kill (tempDir & PresentationFilename & "_temp.pptx")
 
         Dim ParamString As String
         Dim OutlookMessageMac As String
 
-        ParamString = EmailSubject & ";" & MacScript("return posix path of (path to temporary items) as string") & PresentationFilename & ".pdf"
+        ParamString = BuildAppleScriptParam(EmailSubject, tempDir & PresentationFilename & ".pdf")
+        If ParamString = "" Then
+            Kill (tempDir & PresentationFilename & ".pdf")
+            MsgBox "Temporary file path contains unsupported characters."
+            Exit Sub
+        End If
         OutlookMessageMac = AppleScriptTask("InstrumentaAppleScriptPlugin.applescript", "SendFileWithOutlook", CStr(ParamString))
 
-        Kill (MacScript("return posix path of (path to temporary items) as string") & PresentationFilename & ".pdf")
+        Kill (tempDir & PresentationFilename & ".pdf")
         
         #Else
         
-        ActivePresentation.ExportAsFixedFormat Environ("TEMP") & "\" & PresentationFilename & ".pdf", ppFixedFormatTypePDF, ppFixedFormatIntentPrint, msoFalse, , , , , ppPrintSelection
+        tempDir = Environ("TEMP") & "\"
+        
+        ActivePresentation.ExportAsFixedFormat tempDir & PresentationFilename & ".pdf", ppFixedFormatTypePDF, ppFixedFormatIntentPrint, msoFalse, , , , , ppPrintSelection
 
         On Error Resume Next
         Set OutlookApplication = GetObject(Class:="Outlook.Application")
@@ -367,14 +386,14 @@ Sub EmailSelectedSlidesAsPDF()
             .cc = ""
             .subject = EmailSubject
             .Body = ""
-            .Attachments.Add Environ("TEMP") & "\" & PresentationFilename & ".pdf"
+            .Attachments.Add tempDir & PresentationFilename & ".pdf"
             .Display
         End With
         
         On Error GoTo 0
         
         'Clean temporary PDF
-        Kill (Environ("TEMP") & "\" & PresentationFilename & ".pdf")
+        Kill (tempDir & PresentationFilename & ".pdf")
         
         #End If
 
@@ -386,4 +405,19 @@ Sub EmailSelectedSlidesAsPDF()
     
 End Sub
 
-
+Private Function BuildAppleScriptParam(emailSubject As String, emailAttachment As String) As String
+    Dim safeSubject As String
+    safeSubject = Replace(emailSubject, ";", ",")
+    safeSubject = Replace(safeSubject, vbCr, " ")
+    safeSubject = Replace(safeSubject, vbLf, " ")
+    safeSubject = Trim(safeSubject)
+    If Len(safeSubject) = 0 Then
+        safeSubject = "(no subject)"
+    End If
+    ' AppleScript plugin expects "subject;path". Semicolons/newlines would break parsing.
+    If InStr(emailAttachment, ";") > 0 Or InStr(emailAttachment, vbCr) > 0 Or InStr(emailAttachment, vbLf) > 0 Then
+        BuildAppleScriptParam = ""
+        Exit Function
+    End If
+    BuildAppleScriptParam = safeSubject & ";" & SanitizeAppleScriptPath(emailAttachment)
+End Function

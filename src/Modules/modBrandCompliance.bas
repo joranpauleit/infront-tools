@@ -242,14 +242,14 @@ Private Sub CreateDefaultConfig(cfgPath As String)
     Print #fileNum, "; 4. MinFontSizePt: Mindest-Schriftgröße (0 = keine Prüfung)"
     Print #fileNum, ""
     Print #fileNum, "[General]"
-    Print #fileNum, "ActiveProfile=Default"
+    Print #fileNum, "ActiveProfile=" & IniEscape("Default")
     Print #fileNum, ""
     Print #fileNum, "[Profile.Default]"
-    Print #fileNum, "Name=Default"
-    Print #fileNum, "AllowedFonts=Calibri,Calibri Light,Arial"
-    Print #fileNum, "AllowedColors=#003366,#FFFFFF,#000000"
-    Print #fileNum, "ColorTolerance=10"
-    Print #fileNum, "MinFontSizePt=8"
+    Print #fileNum, "Name=" & IniEscape("Default")
+    Print #fileNum, "AllowedFonts=" & IniEscape("Calibri,Calibri Light,Arial")
+    Print #fileNum, "AllowedColors=" & IniEscape("#003366,#FFFFFF,#000000")
+    Print #fileNum, "ColorTolerance=" & IniEscape("10")
+    Print #fileNum, "MinFontSizePt=" & IniEscape("8")
 
     Close #fileNum
     Exit Sub
@@ -309,7 +309,7 @@ Public Function ReadIniValue(filePath As String, section As String, _
             eqPos = InStr(lineText, "=")
             If eqPos > 1 Then
                 If LCase(Trim(Left(lineText, eqPos - 1))) = LCase(key) Then
-                    ReadIniValue = Trim(Mid(lineText, eqPos + 1))
+                    ReadIniValue = IniUnescape(Trim(Mid(lineText, eqPos + 1)))
                     Close #fileNum
                     Exit Function
                 End If
@@ -386,7 +386,7 @@ Public Sub WriteIniValue(filePath As String, section As String, _
             ' Verlassen des gesuchten Abschnitts – Key noch nicht geschrieben?
             If inSection And Not keyWritten Then
                 newCount = newCount + 1
-                newLines(newCount) = key & "=" & value
+                newLines(newCount) = key & "=" & IniEscape(value)
                 keyWritten = True
             End If
             inSection = (LCase(Mid(lineText, 2, Len(lineText) - 2)) = LCase(section))
@@ -400,7 +400,7 @@ Public Sub WriteIniValue(filePath As String, section As String, _
             If eqPos > 1 Then
                 If LCase(Trim(Left(lineText, eqPos - 1))) = LCase(key) Then
                     newCount = newCount + 1
-                    newLines(newCount) = key & "=" & value
+                    newLines(newCount) = key & "=" & IniEscape(value)
                     keyWritten = True
                     GoTo NextWriteLine
                 End If
@@ -422,7 +422,7 @@ NextWriteLine:
     End If
     If Not keyWritten Then
         newCount = newCount + 1
-        newLines(newCount) = key & "=" & value
+        newLines(newCount) = key & "=" & IniEscape(value)
     End If
 
     ' --- Datei zurückschreiben
@@ -438,6 +438,41 @@ WriteError:
     On Error Resume Next
     Close #fileNum
 End Sub
+
+Private Function IniEscape(value As String) As String
+    Dim safeValue As String
+    safeValue = value
+    safeValue = Replace(safeValue, "\", "\\")
+    safeValue = Replace(safeValue, ";", "\;")
+    safeValue = Replace(safeValue, vbCr, "")
+    safeValue = Replace(safeValue, vbLf, "")
+    IniEscape = safeValue
+End Function
+
+Private Function IniUnescape(value As String) As String
+    Dim result As String
+    Dim i As Long
+    Dim ch As String
+    Dim nextCh As String
+
+    i = 1
+    Do While i <= Len(value)
+        ch = Mid$(value, i, 1)
+        If ch = "\" And i < Len(value) Then
+            nextCh = Mid$(value, i + 1, 1)
+            If nextCh = "\" Or nextCh = ";" Then
+                result = result & nextCh
+                i = i + 2
+                GoTo ContinueLoop
+            End If
+        End If
+        result = result & ch
+        i = i + 1
+ContinueLoop:
+    Loop
+
+    IniUnescape = result
+End Function
 
 
 ' =============================================================================
